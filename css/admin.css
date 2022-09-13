@@ -1,0 +1,41 @@
+
+div#tab_lianaMailerSettings select[disabled],
+div#add_fields_menu button.lianamailer.disabled {
+	-webkit-transition:opacity 0.2s linear;
+	-moz-transition:opacity 0.2s linear;
+	-ms-transition:opacity 0.2s linear;
+	-o-transition:opacity 0.2s linear;
+	transition:opacity 0.2s linear;
+	opacity:0.75;
+	-webkit-filter:grayscale(100%);
+	-moz-filter:grayscale(100%);
+	-ms-filter:grayscale(100%);
+	-o-filter:grayscale(100%);
+	filter:grayscale(100%);
+	filter:gray;
+	cursor:not-allowed;
+	pointer-events: inherit;
+}
+
+.lm-property-wrapper {
+	margin-bottom:10px;
+}
+.gform-icon--lianamailer::before {
+	content: ')(' !important;
+	font-style:italic;
+	font-weight: bold;
+	color:#2C700A;
+}
+#gform-form-toolbar__menu .gform-icon--lianamailer,
+.gform-settings__wrapper .gform-icon--lianamailer {
+	height:100%;
+	font-size:1rem !important;
+}
+
+div.notices ul {
+	margin-left:10px;
+}
+div.notices ul li {
+	font-size:12px;
+	list-style-type:disc;
+}
