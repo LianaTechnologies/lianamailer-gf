@@ -175,7 +175,6 @@ class LianaMailerPlugin {
 		}
 		catch(\Exception $e) {
 			$failure_reason = $e->getMessage();
-			error_log('Failure: '.$failure_reason);
 		}
 	}
 

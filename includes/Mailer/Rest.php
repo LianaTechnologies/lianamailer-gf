@@ -52,8 +52,7 @@ class Rest {
 	protected function request($method, $args = array()) {
 		$contents = json_encode($args);
 		$md5 = md5($contents);
-		//$datetime = new \DateTime(null, new \DateTimeZone(!is_null(DEFAULT_TIMEZONE) ? DEFAULT_TIMEZONE : 'Europe/Helsinki'));
-		// TODO: Do we need to support timezones?
+
 		$datetime = new \DateTime(null, new \DateTimeZone('Europe/Helsinki'));
 		$timestamp = $datetime->format('c');
 		$type = 'POST';

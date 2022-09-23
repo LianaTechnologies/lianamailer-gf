@@ -3,7 +3,7 @@
  * Plugin Name:       LianaMailer - Gravity Forms
  * Plugin URI:        https://www.lianatech.com/solutions/websites
  * Description:       LianaMailer for Gravity Forms.
- * Version:           1.052
+ * Version:           1.0.52
  * Requires at least: 5.2
  * Requires PHP:      7.4
  * Author:            Liana Technologies
@@ -28,7 +28,6 @@ namespace GF_LianaMailer;
 // if Gravity Forms is installed (and active?)
 if(class_exists('GFForms')) {
 
-	// TODO: Autoloader?
 	require_once dirname(__FILE__) . '/includes/Mailer/Rest.php';
 	require_once dirname(__FILE__) . '/includes/Mailer/LianaMailerConnection.php';
 
