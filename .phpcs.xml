@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset name="Coding Standards">
+
+	<!-- WP rules! -->
+	<rule ref="WordPress">
+	</rule>
+
+</ruleset>
