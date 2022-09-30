@@ -1,13 +1,36 @@
 <?php
+/**
+ * LianaMailer - Gravity Forms plugin
+ *
+ * PHP Version 7.4
+ *
+ * @package  LianaMailer
+ * @license  https://www.gnu.org/licenses/gpl-3.0-standalone.html GPL-3.0-or-later
+ * @link     https://www.lianatech.com
+ */
 
 namespace GF_LianaMailer;
 
-if ( !class_exists( '\GF_Field' ) ) {
+if ( ! class_exists( '\GF_Field' ) ) {
 	return;
 }
 
+/**
+ * LianaMailer custom field class for Gravity Forms plugin
+ *
+ * PHP Version 7.4
+ *
+ * @package  LianaMailer
+ * @license  https://www.gnu.org/licenses/gpl-3.0-standalone.html GPL-3.0-or-later
+ * @link     https://www.lianatech.com
+ */
 class GF_Field_LianaMailer extends \GF_Field {
 
+	/**
+	 * Field type
+	 *
+	 * @var type string
+	 */
 	public $type = 'lianamailer';
 
 	/**
@@ -37,67 +60,82 @@ class GF_Field_LianaMailer extends \GF_Field {
 			$field_content = sprintf( '%s{FIELD}%s%s', $admin_buttons, $description, $validation_message );
 		}
 
-
 		return $field_content;
 	}
 
+	/**
+	 * Prints LianaMailer field.
+	 *
+	 * @param array  $form Form data.
+	 * @param string $value Input value.
+	 * @param int    $entry ??.
+	 *
+	 * @return mixed|string|void
+	 */
 	public function get_field_input( $form, $value = '', $entry = null ) {
 		$form_id         = absint( $form['id'] );
 		$is_entry_detail = $this->is_entry_detail();
 		$is_form_editor  = $this->is_form_editor();
 
-		$id            = $this->id;
-		$field_id      = $is_entry_detail || $is_form_editor || 0 === (int) $form_id ? "input_$id" : 'input_' . $form_id . "_$id";
-		$disabled_text = $is_form_editor ? 'disabled="disabled"' : '';
-		$is_admin  = $is_form_editor || $is_entry_detail;
-		$isPluginEnabled = (isset($form['lianamailer']['lianamailer_enabled']) && $form['lianamailer']['lianamailer_enabled']);
+		$id                = $this->id;
+		$field_id          = $is_entry_detail || $is_form_editor || 0 === (int) $form_id ? "input_$id" : 'input_' . $form_id . "_$id";
+		$disabled_text     = $is_form_editor ? 'disabled="disabled"' : '';
+		$is_admin          = $is_form_editor || $is_entry_detail;
+		$is_plugin_enabled = ( isset( $form['lianamailer']['lianamailer_enabled'] ) && $form['lianamailer']['lianamailer_enabled'] );
 
-		$options = [
-			'label' => $this->get_field_label( false, $value ),
-			'consent' => '',
-			'precheck' => false,
-			'enabled' => true,
-			'is_connection_valid' => true
-		];
-		$options = apply_filters('gform_lianamailer_get_integration_options', $options, $form_id);
+		$options = array(
+			'label'               => $this->get_field_label( false, $value ),
+			'consent'             => '',
+			'precheck'            => false,
+			'enabled'             => true,
+			'is_connection_valid' => true,
+		);
+		$options = apply_filters( 'gform_lianamailer_get_integration_options', $options, $form_id );
 
-		return sprintf( "<div ".((!$isPluginEnabled || !$options['consent']) && !$is_admin ? ' style="display:none;"' : '')." class='ginput_container ginput_container_checkbox'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options) );
+		return sprintf( '<div ' . ( ( ! $is_plugin_enabled || ! $options['consent'] ) && ! $is_admin ? ' style="display:none;"' : '' ) . " class='ginput_container ginput_container_checkbox'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );
 	}
 
-	public function get_checkbox_choices( $value, $disabled_text, $form_id = 0, $options = []) {
-
-		$notice_msgs = [];
+	/**
+	 * Prints checkboxes for LianaMailer field
+	 *
+	 * @param string $value Input value.
+	 * @param string $disabled_text Is input disabled.
+	 * @param int    $form_id Form ID.
+	 * @param array  $options Input options.
+	 */
+	public function get_checkbox_choices( $value, $disabled_text, $form_id = 0, $options = array() ) {
+		$notice_msgs     = array();
 		$choices         = '';
 		$is_entry_detail = $this->is_entry_detail();
 		$is_form_editor  = $this->is_form_editor();
-		$is_admin  = $is_form_editor || $is_entry_detail;
+		$is_admin        = $is_form_editor || $is_entry_detail;
 
-		$is_plugin_enabled		= $options['enabled'];
-		$consent_label			= $options['label'];
-		$consent				= $options['consent'];
-		$precheck				= $options['precheck'];
-		$is_connection_valid	= !empty($options['is_connection_valid']);
+		$is_plugin_enabled   = $options['enabled'];
+		$consent_label       = $options['label'];
+		$consent             = $options['consent'];
+		$precheck            = $options['precheck'];
+		$is_connection_valid = ! empty( $options['is_connection_valid'] );
 
-		if(!$is_connection_valid) {
-			$notice_msgs[] = 'REST API connection failed. Check <a href="'.admin_url('admin.php?page=lianamailergravityforms').'" target="_blank">settings</a>';
+		if ( ! $is_connection_valid ) {
+			$notice_msgs[] = 'REST API connection failed. Check <a href="' . admin_url( 'admin.php?page=lianamailergravityforms' ) . '" target="_blank">settings</a>';
 		}
 
-		if($is_connection_valid) {
-			if(empty($consent)) {
+		if ( $is_connection_valid ) {
+			if ( empty( $consent ) ) {
 				$notice_msgs[] = ' No consent found';
 			}
-			if(empty($is_plugin_enabled)) {
+			if ( empty( $is_plugin_enabled ) ) {
 				$notice_msgs[] = 'Plugin not enabled';
 			}
 		}
 
-		$preCheckOnPublicForm = false;
-		// If consents not found or plugin is disabled do not print field into public form
-		if(!$is_admin && !empty($notice_msgs) || $precheck) {
-			$preCheckOnPublicForm = true;
+		$pre_check_on_public_form = false;
+		// If consents not found or plugin is disabled do not print field into public form.
+		if ( ! $is_admin && ! empty( $notice_msgs ) || $precheck ) {
+			$pre_check_on_public_form = true;
 		}
 
-		// generate html
+		// Generate HTML.
 		$choice = array(
 			'text'       => $consent_label,
 			'value'      => '1',
@@ -111,43 +149,41 @@ class GF_Field_LianaMailer extends \GF_Field {
 			$id = $form_id . '_' . $this->id;
 		}
 
-		if ( ! isset( $_GET['gf_token'] ) && empty( $_POST ) && rgar( $choice, 'isSelected' ) ) {
-			$checked = "checked='checked'";
-		} elseif ( is_array( $value ) && \RGFormsModel::choice_value_match( $this, $choice, rgget( $input_id, $value ) ) ) {
+		if ( is_array( $value ) && \RGFormsModel::choice_value_match( $this, $choice, rgget( $input_id, $value ) ) ) {
 			$checked = "checked='checked'";
 		} elseif ( ! is_array( $value ) && \RGFormsModel::choice_value_match( $this, $choice, $value ) ) {
 			$checked = "checked='checked'";
 		} else {
 			$checked = '';
 		}
-
-		if($preCheckOnPublicForm) {
+		if ( $pre_check_on_public_form ) {
 			$checked = "checked='checked'";
 		}
 
-		$tabindex      			= $this->get_tabindex();
-		$choice_value  			= $choice['value'];
-		$choice_value  			= esc_attr( $choice_value );
-		// Force to be required
-		$required_attribute		= $this->isRequired ? 'aria-required="true"' : '';
+		$tabindex     = $this->get_tabindex();
+		$choice_value = $choice['value'];
+		$choice_value = esc_attr( $choice_value );
+		// Force to be required.
+		// phpcs:ignore
+		$required_attribute = $this->isRequired ? 'aria-required="true"' : '';
 
 		$choice_markup = "<input name='input_{$input_id}' type='checkbox' value='{$choice_value}' {$checked} id='choice_{$id}' {$tabindex} {$disabled_text} {$required_attribute} />
                         <label for='choice_{$id}' id='label_{$id}'>{$choice['text']}</label>";
 
-		if($is_admin && !empty($notice_msgs)) {
-			$choice_markup .= '<div class="notices">';
+		if ( $is_admin && ! empty( $notice_msgs ) ) {
+			$choice_markup     .= '<div class="notices">';
 				$choice_markup .= '<ul>';
-				foreach($notice_msgs as $msg) {
-					$choice_markup .= '<li>'.$msg.'</li>';
-				}
+			foreach ( $notice_msgs as $msg ) {
+				$choice_markup .= '<li>' . $msg . '</li>';
+			}
 				$choice_markup .= '</ul>';
-			$choice_markup .= '</div>';
+			$choice_markup     .= '</div>';
 		}
 
 		$choices .= gf_apply_filters(
 			array(
 				'gform_field_choice_markup_pre_render',
-				$this->formId,
+				$form_id,
 				$this->id,
 			),
 			$choice_markup,
@@ -156,22 +192,35 @@ class GF_Field_LianaMailer extends \GF_Field {
 			$value
 		);
 
-		return gf_apply_filters( array( 'gform_field_choices', $this->formId, $this->id ), $choices, $this );
+		return gf_apply_filters( array( 'gform_field_choices', $form_id, $this->id ), $choices, $this );
 	}
 
+	/**
+	 * Returns the field title.
+	 *
+	 * @return string
+	 */
 	public function get_form_editor_field_title() {
 		return esc_attr__( 'LianaMailer for WordPress', 'lianamailer-for-wp' );
 	}
 
-
+	/**
+	 * Returns the field description.
+	 *
+	 * @return string
+	 */
 	public function get_consent_description() {
-		$options = apply_filters('gform_lianamailer_get_integration_options', [], null);
-		return ($options['label'] ?? '');
+		$options = apply_filters( 'gform_lianamailer_get_integration_options', array(), null );
+		return ( $options['label'] ?? '' );
 	}
 
-	// Set custom field label by selected consent description as default
+	/**
+	 * Set custom field label by selected consent description as default
+	 *
+	 * @return string
+	 */
 	public function get_form_editor_inline_script_on_page_render() {
-		// set the default field label for the field
+		// set the default field label for the field.
 		$script = sprintf( "function SetDefaultValues_%s(field) {field.label = '%s'; field.isRequired = true; }", $this->type, $this->get_consent_description() ) . PHP_EOL;
 
 		return $script;
@@ -180,17 +229,17 @@ class GF_Field_LianaMailer extends \GF_Field {
 	/**
 	 * Adds the field button to the specified group.
 	 *
-	 * @param array $field_groups
+	 * @param array $field_groups GF field groups.
 	 *
 	 * @return array
 	 */
 	public function add_button( $field_groups ) {
 
-		// Check a button for the type hasn't already been added
+		// Check a button for the type hasn't already been added.
 		foreach ( $field_groups as &$group ) {
 			foreach ( $group['fields'] as &$button ) {
-				if ( isset( $button['data-type'] ) && $button['data-type'] == $this->type ) {
-					$button['data-icon'] = $this->get_form_editor_field_icon();
+				if ( isset( $button['data-type'] ) && $button['data-type'] === $this->type ) {
+					$button['data-icon']        = $this->get_form_editor_field_icon();
 					$button['data-description'] = $this->get_form_editor_field_description();
 					return $field_groups;
 				}
@@ -198,29 +247,28 @@ class GF_Field_LianaMailer extends \GF_Field {
 		}
 
 		$form_id = absint( rgget( 'id' ) );
-		$form = \GFAPI::get_form( $form_id );
-		$fields = $form['fields'];
+		$form    = \GFAPI::get_form( $form_id );
+		$fields  = $form['fields'];
 
-		$alreadyFound = false;
-		foreach($fields as $field_instance) {
-			if($field_instance instanceof GF_Field_LianaMailer) {
-				$alreadyFound = true;
+		$already_found = false;
+		foreach ( $fields as $field_instance ) {
+			if ( $field_instance instanceof GF_Field_LianaMailer ) {
+				$already_found = true;
 			}
 		}
-
 
 		$new_button = $this->get_form_editor_button();
 		if ( ! empty( $new_button ) ) {
 			foreach ( $field_groups as &$group ) {
-				if ( $group['name'] == $new_button['group'] ) {
+				if ( $group['name'] === $new_button['group'] ) {
 					$group['fields'][] = array(
-						'value'      =>  $new_button['text'],
-						'data-icon'       =>  empty($new_button['icon']) ? $this->get_form_editor_field_icon() : $new_button['icon'],
-						'data-description' => empty($new_button['description']) ? $this->get_form_editor_field_description() : $new_button['description'],
-						'data-type'  => $this->type,
-						'class'		=> ($alreadyFound ? 'lianamailer disabled' : 'lianamailer'),
-						'onclick'    => "StartAddField_Lianamailer('{$this->type}', this);",
-						'onkeypress' => "StartAddField_Lianamailer('{$this->type}', this);",
+						'value'            => $new_button['text'],
+						'data-icon'        => empty( $new_button['icon'] ) ? $this->get_form_editor_field_icon() : $new_button['icon'],
+						'data-description' => empty( $new_button['description'] ) ? $this->get_form_editor_field_description() : $new_button['description'],
+						'data-type'        => $this->type,
+						'class'            => ( $already_found ? 'lianamailer disabled' : 'lianamailer' ),
+						'onclick'          => "StartAddField_Lianamailer('{$this->type}', this);",
+						'onkeypress'       => "StartAddField_Lianamailer('{$this->type}', this);",
 					);
 					break;
 				}
@@ -242,7 +290,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 		}
 
 		$delete_aria_action = __( 'delete this field', 'gravityforms' );
-		$delete_field_link = "
+		$delete_field_link  = "
 			<button
 				id='gfield_delete_{$this->id}'
 				class='gfield-field-action gfield-delete'
@@ -251,18 +299,18 @@ class GF_Field_LianaMailer extends \GF_Field {
 				aria-label='" . esc_html( $this->get_field_action_aria_label( $delete_aria_action ) ) . "'
 			>
 				<i class='gform-icon gform-icon--trash'></i>
-				<span class='gfield-field-action__description' aria-hidden='true'>" . esc_html__( 'Delete', 'gravityforms' ) . "</span>
-			</button>";
+				<span class='gfield-field-action__description' aria-hidden='true'>" . esc_html__( 'Delete', 'gravityforms' ) . '</span>
+			</button>';
 
 		/**
-		 * This filter allows for modification of a form field delete link. This will change the link for all fields
+		 * This filter allows for modification of a form field delete link. This will change the link for all fields.
 		 *
 		 * @param string $delete_field_link The Delete Field Link (in HTML)
 		 */
 		$delete_field_link = apply_filters( 'gform_delete_field_link', $delete_field_link );
 
 		$edit_aria_action = __( 'jump to this field\'s settings', 'gravityforms' );
-		$edit_field_link = "
+		$edit_field_link  = "
 			<button
 				id='gfield_edit_{$this->id}'
 				class='gfield-field-action gfield-edit'
@@ -271,11 +319,11 @@ class GF_Field_LianaMailer extends \GF_Field {
 				aria-label='" . esc_html( $this->get_field_action_aria_label( $edit_aria_action ) ) . "'
 			>
 				<i class='gform-icon gform-icon--settings'></i>
-				<span class='gfield-field-action__description' aria-hidden='true'>" . esc_html__( 'Settings', 'gravityforms' ) . "</span>
-			</button>";
+				<span class='gfield-field-action__description' aria-hidden='true'>" . esc_html__( 'Settings', 'gravityforms' ) . '</span>
+			</button>';
 
 		/**
-		 * This filter allows for modification of a form field edit link. This will change the link for all fields
+		 * This filter allows for modification of a form field edit link. This will change the link for all fields.
 		 *
 		 * @param string $edit_field_link The Edit Field Link (in HTML)
 		 */
@@ -313,16 +361,23 @@ class GF_Field_LianaMailer extends \GF_Field {
 		return 'gform-icon--lianamailer';
 	}
 
+	/**
+	 * Returns the class names of the settings which should be available on the field in the form editor.
+	 *
+	 * @return array
+	 */
 	public function get_form_editor_field_settings() {
 		return array(
-			//'label_setting',
-			//'description_setting',
+			/**
+			 * 'label_setting',
+			 * 'description_setting',
+			 */
 			'css_class_setting',
-			// Enable / disable plugin on the form
+			// Enable / disable plugin on the form.
 			'lianamailer_activate_setting',
-			// LM Properties (select)
+			// LM Properties (select).
 			'lianamailer_properties_setting',
-			'rules_setting'
+			'rules_setting',
 		);
 	}
 }

@@ -15,34 +15,33 @@
  *
  * PHP Version 7.4
  *
- * @category Components
- * @package  WordPress
- * @author   Liana Technologies <websites@lianatech.com>
- * @author   Timo Pohjanvirta <timo.pohjanvirta@lianatech.com>
- * @license  GPL-3.0-or-later
- * @link     https://www.lianatech.com
+ * @package LianaMailer
+ * @license https://www.gnu.org/licenses/gpl-3.0-standalone.html GPL-3.0-or-later
+ * @link    https://www.lianatech.com
  */
 
 namespace GF_LianaMailer;
 
-// if Gravity Forms is installed (and active?)
-if(class_exists('GFForms')) {
+define( 'LMCGF_VERSION', '1.0.52' );
 
-	require_once dirname(__FILE__) . '/includes/Mailer/Rest.php';
-	require_once dirname(__FILE__) . '/includes/Mailer/LianaMailerConnection.php';
+// if Gravity Forms is installed (and active?).
+if ( class_exists( 'GFForms' ) ) {
 
-	// LianaMailer plugin for Gravity Forms
-	require_once dirname(__FILE__) . '/includes/LianaMailerPlugin.php';
+	include_once dirname( __FILE__ ) . '/includes/Mailer/class-rest.php';
+	include_once dirname( __FILE__ ) . '/includes/Mailer/class-lianamailerconnection.php';
+
+	// LianaMailer plugin for Gravity Forms.
+	include_once dirname( __FILE__ ) . '/includes/class-lianamailerplugin.php';
 
 	try {
-		$lmPlugin = new LianaMailerPlugin();
-		$lmPlugin->add_hooks();
-	} catch( \Exception $e ) {
+		$lm_plugin = new LianaMailerPlugin();
+		$lm_plugin->add_hooks();
+	} catch ( \Exception $e ) {
 		$error_messages[] = 'Error: ' . $e->getMessage();
 	}
 
 	/**
-	 * Include admin menu & panel code
+	 * Include admin menu & panel code.
 	 */
-	require_once dirname(__FILE__) . '/admin/lianamailer-admin.php';
+	include_once dirname( __FILE__ ) . '/admin/class-lianamailer-gravityforms.php';
 }
