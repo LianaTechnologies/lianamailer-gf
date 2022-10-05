@@ -7,7 +7,7 @@
  * @link     https://www.lianatech.com
  */
 
- jQuery( document ).ready(
+jQuery( document ).ready(
 	function($) {
 
 		var $enableCb          = $( '#tab_lianaMailerSettings input#lianamailer_enabled' );
