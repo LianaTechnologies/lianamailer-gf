@@ -51,9 +51,9 @@ class LianaMailerPlugin {
 	/**
 	 * LianaMailer connection object
 	 *
-	 * @var liana_mailer_connection object
+	 * @var lianamailer_connection object
 	 */
-	private static $liana_mailer_connection;
+	private static $lianamailer_connection;
 
 	/**
 	 * Site data fetched from LianaMailer
@@ -80,7 +80,7 @@ class LianaMailerPlugin {
 	 * Constructor
 	 */
 	public function __construct() {
-		self::$liana_mailer_connection = new LianaMailerConnection();
+		self::$lianamailer_connection = new LianaMailerConnection();
 	}
 
 	/**
@@ -124,8 +124,8 @@ class LianaMailerPlugin {
 
 		$lianamailer_settings = $form['lianamailer'];
 		$is_plugin_enabled    = $lianamailer_settings['lianamailer_enabled'] ?? false;
-		$list_id              = $lianamailer_settings['lianamailer_mailing_list'] ?? null;
-		$consent_id           = $lianamailer_settings['lianamailer_consent'] ?? null;
+		$list_id              = intval( $lianamailer_settings['lianamailer_mailing_list'] ) ?? null;
+		$consent_id           = intval( $lianamailer_settings['lianamailer_consent'] ) ?? null;
 		$selected_site        = $lianamailer_settings['lianamailer_site'] ?? null;
 
 		if ( ! intval( $is_plugin_enabled ) ) {
@@ -158,6 +158,19 @@ class LianaMailerPlugin {
 		self::get_lianamailer_site_data( $selected_site );
 		// No LianaMailer site data found. Maybe issue with credentials or REST API.
 		if ( empty( self::$site_data ) ) {
+			return;
+		}
+
+		// if mailing list was saved in settings but do not exists anymore on LianaMailers subscription page, null the value.
+		if ( $list_id ) {
+			$key = array_search( $list_id, array_column( self::$site_data['lists'], 'id' ), true );
+			// if selected list is not found anymore from LianaMailer subscription page, do not allow subscription.
+			if ( false === $key ) {
+				$list_id = null;
+			}
+		}
+
+		if ( ! $list_id ) {
 			return;
 		}
 
@@ -204,7 +217,7 @@ class LianaMailerPlugin {
 
 			if ( $subscribe_by_email || $subscribe_by_sms ) {
 
-				$customer_settings = self::$liana_mailer_connection->get_liana_mailer_customer();
+				$customer_settings = self::$lianamailer_connection->get_lianamailer_customer();
 				/**
 				 * Autoconfirm subscription if:
 				 * LM site has "registration_needs_confirmation" disabled
@@ -214,30 +227,30 @@ class LianaMailerPlugin {
 				$auto_confirm = ( empty( $customer_settings['registration_needs_confirmation'] ) || ! $email || ! self::$site_data['welcome'] );
 
 				$properties = $this->filter_recipient_properties( $property_map );
-				self::$liana_mailer_connection->setProperties( $properties );
+				self::$lianamailer_connection->set_properties( $properties );
 
 				if ( $subscribe_by_email ) {
-					$recipient = self::$liana_mailer_connection->getRecipientByEmail( $email );
+					$recipient = self::$lianamailer_connection->get_recipient_by_email( $email );
 				} else {
-					$recipient = self::$liana_mailer_connection->getRecipientBySMS( $sms );
+					$recipient = self::$lianamailer_connection->get_recipient_by_sms( $sms );
 				}
 
 				// if recipient found from LM and it not enabled and subscription had email set, re-enable it.
 				if ( ! is_null( $recipient ) && isset( $recipient['recipient']['enabled'] ) && false === $recipient['recipient']['enabled'] && $email ) {
-					self::$liana_mailer_connection->reactivateRecipient( $email, $auto_confirm );
+					self::$lianamailer_connection->reactivate_recipient( $email, $auto_confirm );
 				}
-				self::$liana_mailer_connection->createAndJoinRecipient( $email, $sms, $list_id, $auto_confirm );
+				self::$lianamailer_connection->create_and_join_recipient( $email, $sms, $list_id, $auto_confirm );
 
 				$consent_key = array_search( $consent_id, array_column( self::$site_data['consents'], 'consent_id' ), true );
 				if ( false !== $consent_key ) {
 					$consent_data = self::$site_data['consents'][ $consent_key ];
 					// Add consent to recipient.
-					self::$liana_mailer_connection->addRecipientConsent( $consent_data );
+					self::$lianamailer_connection->add_recipient_consent( $consent_data );
 				}
 
 				// if not existing recipient or recipient was not confirmed and site is using welcome -mail and LM account has double opt-in enabled and email address set.
 				if ( ( ! $recipient || ! $recipient['recipient']['confirmed'] ) && self::$site_data['welcome'] && $customer_settings['registration_needs_confirmation'] && $email ) {
-					self::$liana_mailer_connection->sendWelcomeMail( self::$site_data['domain'] );
+					self::$lianamailer_connection->send_welcome_mail( self::$site_data['domain'] );
 				}
 			}
 		} catch ( \Exception $e ) {
@@ -286,13 +299,18 @@ class LianaMailerPlugin {
 			$selected_site = $form['lianamailer']['lianamailer_site'];
 			self::get_lianamailer_site_data( $selected_site );
 		}
-		self::$is_connection_valid = self::$liana_mailer_connection->get_status();
+		self::$is_connection_valid = self::$lianamailer_connection->get_status();
 		if ( ! self::$is_connection_valid ) {
 			$options['is_connection_valid'] = false;
 		}
-
+		// Set LianaMailer plugin state.
 		if ( isset( $form['lianamailer']['lianamailer_enabled'] ) ) {
 			$options['enabled'] = $form['lianamailer']['lianamailer_enabled'];
+		}
+
+		// Set LianaMailer mailing list.
+		if ( isset( $form['lianamailer']['lianamailer_mailing_list'] ) && ! empty( $form['lianamailer']['lianamailer_mailing_list'] ) ) {
+			$options['mailing_list'] = $form['lianamailer']['lianamailer_mailing_list'];
 		}
 
 		// If GF LianaMailer settings doesnt have consent set or if LianaMailer site doesnt have any consents.
@@ -335,7 +353,7 @@ class LianaMailerPlugin {
 			wp_die();
 		}
 
-		$account_sites = self::$liana_mailer_connection->get_account_sites();
+		$account_sites = self::$lianamailer_connection->get_account_sites();
 		$selected_site = ( isset( $_POST['site'] ) ? sanitize_text_field( wp_unslash( $_POST['site'] ) ) : null );
 
 		if ( ! $selected_site ) {
@@ -349,7 +367,7 @@ class LianaMailerPlugin {
 		foreach ( $account_sites as &$site ) {
 			if ( $site['domain'] === $selected_site ) {
 				$data['lists']    = $site['lists'];
-				$data['consents'] = ( self::$liana_mailer_connection->get_site_consents( $site['domain'] ) ?? array() );
+				$data['consents'] = ( self::$lianamailer_connection->get_site_consents( $site['domain'] ) ?? array() );
 				break;
 			}
 		}
@@ -501,10 +519,10 @@ class LianaMailerPlugin {
 		}
 
 		$site_data     = array();
-		$account_sites = self::$liana_mailer_connection->get_account_sites();
-		// if account sites not found propably there isnt any or REST API settings arent ok.
+		$account_sites = self::$lianamailer_connection->get_account_sites();
+		// If account sites not found propably there isnt any or REST API settings arent ok.
 		if ( empty( $account_sites ) ) {
-			$valid  = self::$liana_mailer_connection->get_status();
+			$valid  = self::$lianamailer_connection->get_status();
 			$fields = array(
 				array(
 					'title'  => esc_html__( 'LianaMailer settings', 'lianamailer' ),
@@ -524,7 +542,7 @@ class LianaMailerPlugin {
 			unset( $site['marketing'] );
 
 			if ( $site['domain'] === $selected_site ) {
-				$site_consents = ( self::$liana_mailer_connection->get_site_consents( $site['domain'] ) ?? array() );
+				$site_consents = ( self::$lianamailer_connection->get_site_consents( $site['domain'] ) ?? array() );
 
 				$site_data['lists']    = isset( $site['lists'] ) ? $site['lists'] : array();
 				$site_data['consents'] = $site_consents;
@@ -568,7 +586,7 @@ class LianaMailerPlugin {
 			}
 		}
 
-		// Build confirmation settings fields.
+		// Build LianaMailer plugin settings fields.
 		$fields = array(
 			array(
 				'title'  => esc_html__( 'LianaMailer settings', 'lianamailer' ),
@@ -786,16 +804,16 @@ class LianaMailerPlugin {
 		}
 
 		// Getting all sites from LianaMailer.
-		$account_sites = self::$liana_mailer_connection->get_account_sites();
+		$account_sites = self::$lianamailer_connection->get_account_sites();
 
 		// Getting all properties from LianaMailer.
-		$lianamailer_properties = self::$liana_mailer_connection->get_liana_mailer_properties();
+		$lianamailer_properties = self::$lianamailer_connection->get_lianamailer_properties();
 
 		$site_data = array();
 		foreach ( $account_sites as &$site ) {
 			if ( $site['domain'] === $selected_site ) {
 				$properties    = array();
-				$site_consents = ( self::$liana_mailer_connection->get_site_consents( $site['domain'] ) ?? array() );
+				$site_consents = ( self::$lianamailer_connection->get_site_consents( $site['domain'] ) ?? array() );
 
 				$site_data['domain']  = $site['domain'];
 				$site_data['welcome'] = $site['welcome'];
@@ -829,7 +847,7 @@ class LianaMailerPlugin {
 	 */
 	private function get_lianamailer_properties( $core_fields = false, $properties = array() ) {
 		$fields            = array();
-		$customer_settings = self::$liana_mailer_connection->get_liana_mailer_customer();
+		$customer_settings = self::$lianamailer_connection->get_lianamailer_customer();
 		// if couldnt fetch customer settings we assume something is wrong with API or credentials.
 		if ( empty( $customer_settings ) ) {
 			return $fields;

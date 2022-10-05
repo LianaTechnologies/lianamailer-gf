@@ -85,14 +85,15 @@ class GF_Field_LianaMailer extends \GF_Field {
 
 		$options = array(
 			'label'               => $this->get_field_label( false, $value ),
+			'mailing_list'        => '',
 			'consent'             => '',
 			'precheck'            => false,
 			'enabled'             => true,
 			'is_connection_valid' => true,
 		);
 		$options = apply_filters( 'gform_lianamailer_get_integration_options', $options, $form_id );
-
-		return sprintf( '<div ' . ( ( ! $is_plugin_enabled || ! $options['consent'] ) && ! $is_admin ? ' style="display:none;"' : '' ) . " class='ginput_container ginput_container_checkbox'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );
+		// If plugin is not enabled, consent not selected or mailing list not selected, hide the input from public form.
+		return sprintf( '<div ' . ( ( ! $is_plugin_enabled || ! $options['consent'] || ! $options['mailing_list'] ) && ! $is_admin ? ' style="display:none;"' : '' ) . " class='ginput_container ginput_container_checkbox'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );
 	}
 
 	/**
@@ -111,6 +112,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$is_admin        = $is_form_editor || $is_entry_detail;
 
 		$is_plugin_enabled   = $options['enabled'];
+		$mailing_list        = $options['mailing_list'];
 		$consent_label       = $options['label'];
 		$consent             = $options['consent'];
 		$precheck            = $options['precheck'];
@@ -121,11 +123,14 @@ class GF_Field_LianaMailer extends \GF_Field {
 		}
 
 		if ( $is_connection_valid ) {
-			if ( empty( $consent ) ) {
-				$notice_msgs[] = ' No consent found';
-			}
 			if ( empty( $is_plugin_enabled ) ) {
 				$notice_msgs[] = 'Plugin not enabled';
+			}
+			if ( empty( $mailing_list ) ) {
+				$notice_msgs[] = ' No mailing list selected';
+			}
+			if ( empty( $consent ) ) {
+				$notice_msgs[] = ' No consent found';
 			}
 		}
 
@@ -174,7 +179,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 			$choice_markup     .= '<div class="notices">';
 				$choice_markup .= '<ul>';
 			foreach ( $notice_msgs as $msg ) {
-				$choice_markup .= '<li>' . $msg . '</li>';
+				$choice_markup .= '<li class="gfield_required">' . $msg . '</li>';
 			}
 				$choice_markup .= '</ul>';
 			$choice_markup     .= '</div>';
@@ -373,8 +378,6 @@ class GF_Field_LianaMailer extends \GF_Field {
 			 * 'description_setting',
 			 */
 			'css_class_setting',
-			// Enable / disable plugin on the form.
-			'lianamailer_activate_setting',
 			// LM Properties (select).
 			'lianamailer_properties_setting',
 			'rules_setting',

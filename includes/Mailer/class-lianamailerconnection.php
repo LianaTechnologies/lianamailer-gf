@@ -306,7 +306,7 @@ class LianaMailerConnection {
 	 * Get all properties from LianaMailer account
 	 * Ref: https://rest.lianamailer.com/docs/#operation/v1-post-getCustomerProperties
 	 */
-	public function get_liana_mailer_properties() {
+	public function get_lianamailer_properties() {
 		$fields = array();
 		try {
 			$fields = $this->rest->call( 'getCustomerProperties' );
@@ -320,7 +320,7 @@ class LianaMailerConnection {
 	 * Get LianaMailer customer settings
 	 * Ref: https://rest.lianamailer.com/docs/#operation/v1-post-getCustomer
 	 */
-	public function get_liana_mailer_customer() {
+	public function get_lianamailer_customer() {
 		$customer = array();
 		try {
 			$customer = $this->rest->call( 'getCustomer' );

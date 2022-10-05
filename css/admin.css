@@ -15,7 +15,9 @@ div#add_fields_menu button.lianamailer.disabled {
 	cursor:not-allowed;
 	pointer-events: inherit;
 }
-
+div#tab_lianaMailerSettings select.error {
+	border-color:#dc3232;
+}
 .lm-property-wrapper {
 	margin-bottom:10px;
 }

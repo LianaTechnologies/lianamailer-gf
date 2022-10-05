@@ -43,11 +43,25 @@
 		}
 
 		if ($enableCb.is( ':checked' )) {
-			console.log( 'Plugin is enabled!' );
 			$mailingListSelect.attr( 'required', 'required' );
 		} else {
 			$mailingListSelect.removeAttr( 'required' );
 		}
+
+		if ( ! $mailingListSelect.val() ) {
+			setError( $mailingListSelect );
+		}
+
+		$mailingListSelect.change(
+			function() {
+				var mailingListValue = $( this ).val();
+				if ( ! mailingListValue) {
+					setError( $mailingListSelect );
+				} else {
+					unsetError( $mailingListSelect );
+				}
+			}
+		);
 
 		$enableCb.change(
 			function() {
@@ -99,7 +113,6 @@
 
 					$.ajax( params ).done(
 						function( data ) {
-							console.log( 'Got this from the server: ', data );
 
 							var lists    = data.lists;
 							var consents = data.consents;
@@ -176,7 +189,6 @@ jQuery( document ).on(
 		}
 
 		if (field.lianamailer_properties == undefined) {
-			console.log( 'No lianamailer properties mapped!' );
 			return;
 		}
 
@@ -233,6 +245,12 @@ function enableElement($elem) {
 }
 function disableElement($elem) {
 	$elem.prop( 'disabled', true );
+}
+function setError($elem) {
+	$elem.addClass( 'error' );
+}
+function unsetError($elem) {
+	$elem.removeClass( 'error' );
 }
 
 jQuery( document ).on(
