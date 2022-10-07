@@ -51,16 +51,29 @@ class LianaMailerConnection {
 	private $recipient_properties;
 
 	/**
+	 * REST API options
+	 *
+	 * @var lianamailer_gf_options array
+	 */
+	private $lianamailer_settings = array(
+		'lianamailer_userid'     => '',
+		'lianamailer_secret_key' => '',
+		'lianamailer_realm'      => '',
+		'lianamailer_url'        => '',
+	);
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
 
-		$liana_mailer_settings = get_option( 'lianamailer_gravityforms_options' );
-		$this->rest            = new Rest(
-			$liana_mailer_settings['lianamailer_userid'],
-			$liana_mailer_settings['lianamailer_secret_key'],
-			$liana_mailer_settings['lianamailer_realm'],
-			$liana_mailer_settings['lianamailer_url']
+		$this->lianamailer_settings = get_option( 'lianamailer_gf_options' );
+
+		$this->rest = new Rest(
+			$this->lianamailer_settings['lianamailer_userid'],
+			$this->lianamailer_settings['lianamailer_secret_key'],
+			$this->lianamailer_settings['lianamailer_realm'],
+			$this->lianamailer_settings['lianamailer_url']
 		);
 	}
 
