@@ -30,4 +30,4 @@ You can also notify us via our support channels.
 
 == Changelog ==
 
-= 1.0.53 2022-09-23 = Initial public release
+= 1.0.55 2022-09-23 = Initial public release

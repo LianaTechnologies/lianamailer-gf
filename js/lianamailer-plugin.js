@@ -188,13 +188,23 @@ jQuery( document ).on(
 			return;
 		}
 
+		if ( ! field.label ) {
+			field.label = 'Untitled';
+		}
+
+		var opt_in       = field.lianamailer_opt_in;
+		var opt_in_label = field.label;
+
+		if ( opt_in ) {
+			jQuery( '.lianamailer_opt_in_setting .lm-opt-in-label-wrapper' ).removeClass( 'hidden' );
+		}
+
+		jQuery( 'input#field_lianamailer_opt_in' ).prop( 'checked', opt_in );
+		jQuery( 'input#field_label' ).val( opt_in_label );
+
 		if (field.lianamailer_properties == undefined) {
 			return;
 		}
-
-		var $requiredCB = jQuery( '#field_required' );
-		$requiredCB.prop( 'checked', true );
-		field.isRequired = true;
 
 		var properties = field.lianamailer_properties;
 		jQuery.each(
@@ -224,6 +234,35 @@ function SetLianaMailerProperty($elem) {
 	SetFieldProperty( 'lianamailer_properties', LianaMailerProperties );
 }
 
+function SetLianaMailerOptIn($elem) {
+	var value         = $elem.is( ':checked' );
+	var opt_in_label  = jQuery( '#field_label' ).val();
+	var consent_label = jQuery( '.field_selected label' ).data( 'consent-label' );
+
+	if ( value ) {
+		jQuery( '.lianamailer_opt_in_setting .lm-opt-in-label-wrapper' ).removeClass( 'hidden' );
+
+		if ( opt_in_label ) {
+			jQuery( '.field_selected label' ).text( opt_in_label );
+		} else {
+			jQuery( '.field_selected label' ).text( consent_label );
+		}
+	} else {
+		jQuery( '.lianamailer_opt_in_setting .lm-opt-in-label-wrapper' ).addClass( 'hidden' );
+		jQuery( '.field_selected label' ).text( consent_label );
+	}
+	SetFieldProperty( 'lianamailer_opt_in', value );
+}
+
+function SetLianaMailerOptInLabel( $elem ) {
+	var value = $elem.val();
+	SetFieldProperty( 'label', value );
+	// If opt-in label is empty, use consent label to prevent labeless input.
+	if ( ! value ) {
+		value = ( jQuery( '.field_selected label' ).data( 'consent-label' ) ? jQuery( '.field_selected label' ).data( 'consent-label' ) : 'No consent found' );
+	}
+	jQuery( '.field_selected label' ).text( value );
+}
 var deletedLianamailerField = false;
 function StartAddField_Lianamailer(type, element) {
 	deletedLianamailerField = false;

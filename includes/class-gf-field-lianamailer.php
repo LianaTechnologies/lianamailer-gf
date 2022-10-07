@@ -84,16 +84,22 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$is_plugin_enabled = ( isset( $form['lianamailer']['lianamailer_enabled'] ) && $form['lianamailer']['lianamailer_enabled'] );
 
 		$options = array(
-			'label'               => $this->get_field_label( false, $value ),
-			'mailing_list'        => '',
-			'consent'             => '',
-			'precheck'            => false,
-			'enabled'             => true,
-			'is_connection_valid' => true,
+			'consent_label'          => $this->get_field_label( false, $value ),
+			'consent_id'             => '',
+			'opt_in'                 => false,
+			'opt_in_label'           => '',
+			'mailing_list'           => '',
+			'precheck'               => false,
+			'is_connection_valid'    => true,
+			'is_admin'               => $is_admin,
+			'is_plugin_enabled'      => false,
+			'is_email_or_sms_mapped' => false,
 		);
 		$options = apply_filters( 'gform_lianamailer_get_integration_options', $options, $form_id );
-		// If plugin is not enabled, consent not selected or mailing list not selected, hide the input from public form.
-		return sprintf( '<div ' . ( ( ! $is_plugin_enabled || ! $options['consent'] || ! $options['mailing_list'] ) && ! $is_admin ? ' style="display:none;"' : '' ) . " class='ginput_container ginput_container_checkbox'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );
+		/**
+		 * If plugin is not enabled, consent not selected or mailing list not selected, hide the input from public form.
+		 */
+		return sprintf( '<div ' . ( $this->hide_input_on_public_form( $options ) ? ' style="display:none;"' : '' ) . " class='ginput_container ginput_container_checkbox lianamailer_input'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );
 	}
 
 	/**
@@ -109,14 +115,17 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$choices         = '';
 		$is_entry_detail = $this->is_entry_detail();
 		$is_form_editor  = $this->is_form_editor();
-		$is_admin        = $is_form_editor || $is_entry_detail;
 
-		$is_plugin_enabled   = $options['enabled'];
-		$mailing_list        = $options['mailing_list'];
-		$consent_label       = $options['label'];
-		$consent             = $options['consent'];
-		$precheck            = $options['precheck'];
-		$is_connection_valid = ! empty( $options['is_connection_valid'] );
+		$is_plugin_enabled      = $options['is_plugin_enabled'];
+		$mailing_list           = $options['mailing_list'];
+		$label                  = $options['consent_label'];
+		$consent_id             = $options['consent_id'];
+		$precheck               = $options['precheck'];
+		$opt_in                 = $options['opt_in'];
+		$opt_in_label           = $options['opt_in_label'];
+		$is_admin               = $options['is_admin'];
+		$is_connection_valid    = ! empty( $options['is_connection_valid'] );
+		$is_email_or_sms_mapped = ! empty( $options['is_email_or_sms_mapped'] );
 
 		if ( ! $is_connection_valid ) {
 			$notice_msgs[] = 'REST API connection failed. Check <a href="' . admin_url( 'admin.php?page=lianamailergravityforms' ) . '" target="_blank">settings</a>';
@@ -127,22 +136,31 @@ class GF_Field_LianaMailer extends \GF_Field {
 				$notice_msgs[] = 'Plugin not enabled';
 			}
 			if ( empty( $mailing_list ) ) {
-				$notice_msgs[] = ' No mailing list selected';
+				$notice_msgs[] = 'No mailing list selected';
 			}
-			if ( empty( $consent ) ) {
-				$notice_msgs[] = ' No consent found';
+			if ( empty( $consent_id ) && ( ! $opt_in || $is_admin ) ) {
+				$notice_msgs[] = 'No consent found.';
+			}
+
+			if ( ! $is_email_or_sms_mapped ) {
+				$notice_msgs[] = 'Email or SMS field is not mapped.';
 			}
 		}
 
 		$pre_check_on_public_form = false;
 		// If consents not found or plugin is disabled do not print field into public form.
-		if ( ! $is_admin && ! empty( $notice_msgs ) || $precheck ) {
+		// phpcs:ignore
+		if ( ! $is_admin && ( ! empty( $notice_msgs ) && $this->isRequired ) || $precheck ) {
 			$pre_check_on_public_form = true;
+		}
+
+		if ( true === $opt_in && $opt_in_label ) {
+			$label = $opt_in_label;
 		}
 
 		// Generate HTML.
 		$choice = array(
-			'text'       => $consent_label,
+			'text'       => $label,
 			'value'      => '1',
 			'isSelected' => $precheck,
 		);
@@ -168,18 +186,21 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$tabindex     = $this->get_tabindex();
 		$choice_value = $choice['value'];
 		$choice_value = esc_attr( $choice_value );
-		// Force to be required.
+
 		// phpcs:ignore
 		$required_attribute = $this->isRequired ? 'aria-required="true"' : '';
+		// phpcs:ignore
+		$required_div       = $this->isRequired ? '<span class="gfield_required">' . $this->get_required_indicator() . '</span>' : '';
+		$data_consent_label = ( $consent_id && $choice['text'] ? "data-consent-label='{$choice['text']}'" : '' );
 
 		$choice_markup = "<input name='input_{$input_id}' type='checkbox' value='{$choice_value}' {$checked} id='choice_{$id}' {$tabindex} {$disabled_text} {$required_attribute} />
-                        <label for='choice_{$id}' id='label_{$id}'>{$choice['text']}</label>";
+                        <label for='choice_{$id}' id='label_{$id}' {$data_consent_label}>{$choice['text']} {$required_div}</label>";
 
 		if ( $is_admin && ! empty( $notice_msgs ) ) {
 			$choice_markup     .= '<div class="notices">';
 				$choice_markup .= '<ul>';
 			foreach ( $notice_msgs as $msg ) {
-				$choice_markup .= '<li class="gfield_required">' . $msg . '</li>';
+				$choice_markup .= '<li>' . $msg . '</li>';
 			}
 				$choice_markup .= '</ul>';
 			$choice_markup     .= '</div>';
@@ -201,6 +222,44 @@ class GF_Field_LianaMailer extends \GF_Field {
 	}
 
 	/**
+	 * Check field options if input should be hidden in public form.
+	 *
+	 * @param array $options Field options.
+	 *
+	 * @return boolean true if input should be hidden.
+	 */
+	private function hide_input_on_public_form( $options ) {
+		$hide_input = false;
+
+		// If we are in editor, show the input.
+		if ( $options['is_admin'] ) {
+			return false;
+		}
+
+		// If plugin is not enabled on current form or mailing list is not selected or email/sms inputs is not mapped.
+		if ( ! $options['is_plugin_enabled'] || ! $options['mailing_list'] || ! $options['is_email_or_sms_mapped'] ) {
+			return true;
+		}
+
+		// If consent not selected and not using opt-in.
+		if ( ( ! $options['consent_id'] && ! $options['opt_in'] ) ) {
+			return true;
+		}
+
+		// If consent or mailing list is not selected and opt-in is on.
+		if ( ( ! $options['consent_id'] || ! $options['mailing_list'] ) ) {
+			// If opt-in doesnt have label.
+			if ( ! $options['opt_in_label'] && $options['opt_in'] ) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns the field title.
 	 *
 	 * @return string
@@ -216,7 +275,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 	 */
 	public function get_consent_description() {
 		$options = apply_filters( 'gform_lianamailer_get_integration_options', array(), null );
-		return ( $options['label'] ?? '' );
+		return ( $options['consent_label'] ?? 'Untitled' );
 	}
 
 	/**
@@ -226,7 +285,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 	 */
 	public function get_form_editor_inline_script_on_page_render() {
 		// set the default field label for the field.
-		$script = sprintf( "function SetDefaultValues_%s(field) {field.label = '%s'; field.isRequired = true; }", $this->type, $this->get_consent_description() ) . PHP_EOL;
+		$script = sprintf( "function SetDefaultValues_%s(field) {field.label = '%s'; field.lianamailer_opt_in = false;  }", $this->type, $this->get_consent_description() ) . PHP_EOL;
 
 		return $script;
 	}
@@ -373,13 +432,11 @@ class GF_Field_LianaMailer extends \GF_Field {
 	 */
 	public function get_form_editor_field_settings() {
 		return array(
-			/**
-			 * 'label_setting',
-			 * 'description_setting',
-			 */
 			'css_class_setting',
 			// LM Properties (select).
 			'lianamailer_properties_setting',
+			// Newsletter subscription opt-in settings. Includes checkbox and label.
+			'lianamailer_opt_in_setting',
 			'rules_setting',
 		);
 	}

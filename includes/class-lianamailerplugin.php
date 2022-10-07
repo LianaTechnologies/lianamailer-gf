@@ -122,87 +122,95 @@ class LianaMailerPlugin {
 	 */
 	public function do_newsletter_subscription( $entry, $form ) {
 
-		$lianamailer_settings = $form['lianamailer'];
-		$is_plugin_enabled    = $lianamailer_settings['lianamailer_enabled'] ?? false;
-		$list_id              = intval( $lianamailer_settings['lianamailer_mailing_list'] ) ?? null;
-		$consent_id           = intval( $lianamailer_settings['lianamailer_consent'] ) ?? null;
-		$selected_site        = $lianamailer_settings['lianamailer_site'] ?? null;
-
-		if ( ! intval( $is_plugin_enabled ) ) {
-			return;
-		}
-
-		$fields               = $form['fields'];
-		$lianamailer_field_id = null;
-		// Fetch all non LianaMailer properties for settings.
-		foreach ( $fields as $key => $field_object ) {
-			if ( false === $field_object instanceof GF_Field_LianaMailer ) {
-				continue;
-			}
-			$lianamailer_field = $field_object;
-		}
-
-		$lianamailer_field_id = $lianamailer_field['id'];
-
-		// If LianaMailer field was not posted, bail out.
-		if ( ! array_key_exists( $lianamailer_field_id, $entry ) || empty( $entry[ $lianamailer_field_id ] ) ) {
-			return;
-		}
-
-		$property_map = array();
-		if ( isset( $lianamailer_field['lianamailer_properties'] ) ) {
-			// keys are LianaMailer properties and values GForms.
-			$property_map = $lianamailer_field['lianamailer_properties'];
-		}
-
-		self::get_lianamailer_site_data( $selected_site );
-		// No LianaMailer site data found. Maybe issue with credentials or REST API.
-		if ( empty( self::$site_data ) ) {
-			return;
-		}
-
-		// if mailing list was saved in settings but do not exists anymore on LianaMailers subscription page, null the value.
-		if ( $list_id ) {
-			$key = array_search( $list_id, array_column( self::$site_data['lists'], 'id' ), true );
-			// if selected list is not found anymore from LianaMailer subscription page, do not allow subscription.
-			if ( false === $key ) {
-				$list_id = null;
-			}
-		}
-
-		if ( ! $list_id ) {
-			return;
-		}
-
-		$field_map_email = ( array_key_exists( 'email', $property_map ) ? intval( $property_map['email'] ) : null );
-		$field_map_sms   = ( array_key_exists( 'sms', $property_map ) ? intval( $property_map['sms'] ) : null );
-
-		$email     = null;
-		$sms       = null;
-		$recipient = null;
-
-		$posted_data = array();
-		foreach ( $form['fields'] as $field ) {
-
-			$inputs                    = $field->get_entry_inputs();
-			$value                     = rgar( $entry, (string) $field->id );
-			$posted_data[ $field->id ] = $value;
-
-			if ( $field->id === $field_map_email ) {
-				$email = $value;
-			}
-			if ( $field->id === $field_map_sms ) {
-				$sms = $value;
-			}
-		}
-
-		$this->post_data = $posted_data;
-		$consent_data    = array();
-
 		try {
-			if ( empty( $list_id ) ) {
-				throw new \Exception( 'No mailing lists set' );
+
+			$lianamailer_settings = $form['lianamailer'];
+			$is_plugin_enabled    = $lianamailer_settings['lianamailer_enabled'] ?? false;
+			$list_id              = intval( $lianamailer_settings['lianamailer_mailing_list'] ) ?? null;
+			$consent_id           = intval( $lianamailer_settings['lianamailer_consent'] ) ?? null;
+			$selected_site        = $lianamailer_settings['lianamailer_site'] ?? null;
+
+			if ( ! intval( $is_plugin_enabled ) ) {
+				throw new \Exception( 'Plugin is not enabled' );
 			}
+
+			$fields               = $form['fields'];
+			$lianamailer_field_id = null;
+			// Fetch LianaMailer properties for settings.
+			$lianamailer_field = $this->get_lianamailer_field_from_form( $form );
+
+			if ( false !== $lianamailer_field instanceof GF_LianaMailer\GF_Field_LianaMailer ) {
+				throw new \Exception( 'LianaMailer field could not found on form' );
+			}
+
+			$lianamailer_field_id = $lianamailer_field['id'];
+			$is_opt_in_enabled    = $lianamailer_field['lianamailer_opt_in'];
+			$opt_in_label         = $lianamailer_field['label'];
+
+			// If opt-in was enabled but without label and consent.
+			if ( $is_opt_in_enabled && ! $opt_in_label && ! $consent_id ) {
+				throw new \Exception( 'Opt-in was enabled without label and consent' );
+			}
+			// If consent is not set and opt-in is not enabled.
+			if ( ! $consent_id && ! $is_opt_in_enabled ) {
+				throw new \Exception( 'No consent set and opt-in was disabled' );
+			}
+
+			// If LianaMailer field was not posted, bail out.
+			if ( ! array_key_exists( $lianamailer_field_id, $entry ) || empty( $entry[ $lianamailer_field_id ] ) ) {
+				throw new \Exception( 'LianaMailer field was not posted' );
+			}
+
+			$property_map = array();
+			if ( isset( $lianamailer_field['lianamailer_properties'] ) ) {
+				// keys are LianaMailer properties and values GForms.
+				$property_map = $lianamailer_field['lianamailer_properties'];
+			}
+
+			self::get_lianamailer_site_data( $selected_site );
+			// No LianaMailer site data found. Maybe issue with credentials or REST API.
+			if ( empty( self::$site_data ) ) {
+				throw new \Exception( 'LianaMailer site data could not be fetched. Check REST API credentials.' );
+			}
+
+			// if mailing list was saved in settings but do not exists anymore on LianaMailers subscription page, null the value.
+			if ( $list_id ) {
+				$key = array_search( $list_id, array_column( self::$site_data['lists'], 'id' ), true );
+				// if selected list is not found anymore from LianaMailer subscription page, do not allow subscription.
+				if ( false === $key ) {
+					$list_id = null;
+				}
+			}
+
+			if ( ! $list_id ) {
+				throw new \Exception( 'Mailing list was not selected' );
+			}
+
+			$field_map_email = ( array_key_exists( 'email', $property_map ) ? intval( $property_map['email'] ) : null );
+			$field_map_sms   = ( array_key_exists( 'sms', $property_map ) ? intval( $property_map['sms'] ) : null );
+
+			$email     = null;
+			$sms       = null;
+			$recipient = null;
+
+			$posted_data = array();
+			foreach ( $form['fields'] as $field ) {
+
+				$inputs                    = $field->get_entry_inputs();
+				$value                     = rgar( $entry, (string) $field->id );
+				$posted_data[ $field->id ] = $value;
+
+				if ( $field->id === $field_map_email ) {
+					$email = $value;
+				}
+				if ( $field->id === $field_map_sms ) {
+					$sms = $value;
+				}
+			}
+
+			$this->post_data = $posted_data;
+			$consent_data    = array();
+
 			if ( empty( $email ) && empty( $sms ) ) {
 				throw new \Exception( 'No email or SMS -field set' );
 			}
@@ -229,6 +237,7 @@ class LianaMailerPlugin {
 				$properties = $this->filter_recipient_properties( $property_map );
 				self::$lianamailer_connection->set_properties( $properties );
 
+				$recipient = array();
 				if ( $subscribe_by_email ) {
 					$recipient = self::$lianamailer_connection->get_recipient_by_email( $email );
 				} else {
@@ -239,7 +248,7 @@ class LianaMailerPlugin {
 				if ( ! is_null( $recipient ) && isset( $recipient['recipient']['enabled'] ) && false === $recipient['recipient']['enabled'] && $email ) {
 					self::$lianamailer_connection->reactivate_recipient( $email, $auto_confirm );
 				}
-				self::$lianamailer_connection->create_and_join_recipient( $email, $sms, $list_id, $auto_confirm );
+				self::$lianamailer_connection->create_and_join_recipient( $recipient, $email, $sms, $list_id, $auto_confirm );
 
 				$consent_key = array_search( $consent_id, array_column( self::$site_data['consents'], 'consent_id' ), true );
 				if ( false !== $consent_key ) {
@@ -293,7 +302,12 @@ class LianaMailerPlugin {
 	 * @return array $options
 	 */
 	public function get_integration_options( $options, $form_id ) {
-		$form = self::get_form( $form_id );
+
+		if ( ! absint( $form_id ) ) {
+			return array();
+		}
+		$form              = self::get_form( $form_id );
+		$lianamailer_field = $this->get_lianamailer_field_from_form( $form );
 
 		if ( isset( $form['lianamailer']['lianamailer_site'] ) ) {
 			$selected_site = $form['lianamailer']['lianamailer_site'];
@@ -305,7 +319,7 @@ class LianaMailerPlugin {
 		}
 		// Set LianaMailer plugin state.
 		if ( isset( $form['lianamailer']['lianamailer_enabled'] ) ) {
-			$options['enabled'] = $form['lianamailer']['lianamailer_enabled'];
+			$options['is_plugin_enabled'] = $form['lianamailer']['lianamailer_enabled'];
 		}
 
 		// Set LianaMailer mailing list.
@@ -313,22 +327,65 @@ class LianaMailerPlugin {
 			$options['mailing_list'] = $form['lianamailer']['lianamailer_mailing_list'];
 		}
 
-		// If GF LianaMailer settings doesnt have consent set or if LianaMailer site doesnt have any consents.
-		if ( ! isset( $form['lianamailer']['lianamailer_consent'] ) || empty( $form['lianamailer']['lianamailer_consent'] ) || ! isset( self::$site_data['consents'] ) || empty( self::$site_data['consents'] ) ) {
-			$options['label']    = 'No consent found';
-			$options['precheck'] = true;
-			return $options;
+		// If using opt-in functionality, newsletter subscription label is possible to edit.
+		if ( isset( $lianamailer_field['lianamailer_opt_in'] ) && $lianamailer_field['lianamailer_opt_in'] ) {
+			$options['opt_in'] = boolval( $lianamailer_field['lianamailer_opt_in'] );
+		}
+		// If using opt-in functionality, newsletter subscription label is possible to edit.
+		if ( isset( $lianamailer_field['label'] ) ) {
+			$options['opt_in_label'] = $lianamailer_field['label'];
 		}
 
-		foreach ( self::$site_data['consents'] as $consent ) {
-			if ( intval( $form['lianamailer']['lianamailer_consent'] ) === $consent['consent_id'] ) {
-				$options['label']   = $consent['description'];
-				$options['consent'] = $consent['consent_id'];
-				break;
+		// If GF LianaMailer settings doesnt have consent set or if LianaMailer site doesnt have any consents.
+		if ( ! isset( $form['lianamailer']['lianamailer_consent'] ) || empty( $form['lianamailer']['lianamailer_consent'] ) || ! isset( self::$site_data['consents'] ) || empty( self::$site_data['consents'] ) ) {
+			$options['consent_label'] = 'No consent found';
+
+			// If not using opt-in or opt_in_label is not set, precheck consent checkbox in public form.
+			if ( false === $options['opt_in'] || ! $options['opt_in_label'] ) {
+				$options['precheck'] = true;
+			}
+		} else {
+			foreach ( self::$site_data['consents'] as $consent ) {
+				if ( intval( $form['lianamailer']['lianamailer_consent'] ) === $consent['consent_id'] ) {
+					$options['consent_label'] = $consent['description'];
+					$options['consent_id']    = $consent['consent_id'];
+					break;
+				}
 			}
 		}
 
+		// Check if email or SMS fields are mapped.
+		if ( isset( $lianamailer_field['lianamailer_properties']['email'] ) && $lianamailer_field['lianamailer_properties']['email'] || isset( $lianamailer_field['lianamailer_properties']['sms'] ) && $lianamailer_field['lianamailer_properties']['sms'] ) {
+			$options['is_email_or_sms_mapped'] = true;
+		}
+
 		return $options;
+	}
+
+	/**
+	 * Gets LianaMailer field object from form fields.
+	 *
+	 * @param object $form Form object.
+	 *
+	 * @return object $lianamailer_field LianaMailer field object.
+	 */
+	private function get_lianamailer_field_from_form( $form ) {
+
+		if ( ! isset( $form['fields'] ) ) {
+			return array();
+		}
+
+		$fields            = $form['fields'];
+		$lianamailer_field = array();
+		// Fetch all non LianaMailer properties for settings.
+		foreach ( $fields as $key => $field_object ) {
+			if ( false === $field_object instanceof GF_Field_LianaMailer ) {
+				continue;
+			}
+			$lianamailer_field = $field_object;
+		}
+
+		return $lianamailer_field;
 	}
 
 	/**
@@ -715,6 +772,8 @@ class LianaMailerPlugin {
 			'value'   => 1,
 			'type'    => 1,
 			'checked' => 1,
+			'onclick' => 1,
+			'onkeyup' => 1,
 		);
 
 		$custom_allowed['select'] = array(
@@ -755,7 +814,7 @@ class LianaMailerPlugin {
 
 		$html          = '<li class="lianamailer_properties_setting field_setting">';
 			$html     .= '<label for="field_lianamailer_property" class="section_label">';
-				$html .= esc_html__( 'LianaMailer Property Map', 'lianamailer-for-wp' );
+				$html .= esc_html__( 'LianaMailer Property Map', 'lianamailer-for-gf' );
 				$html .= gform_tooltip( 'property_map_setting', '', true );
 			$html     .= '</label>';
 
@@ -773,7 +832,7 @@ class LianaMailerPlugin {
 						$html .= '<b>' . $property['name'] . ( isset( $property['handle'] ) && is_int( $property['handle'] ) ? ' (#' . $property['handle'] . ')' : '' ) . '</b>';
 					$html     .= '</label>';
 					$html     .= '<select id="field_lianamailer_property_' . $property['handle'] . '" data-handle="' . $property['handle'] . '" onchange="SetLianaMailerProperty(jQuery(this))">';
-						$html .= '<option value="">' . esc_html__( 'Select form field', 'lianamailer-for-wp' ) . '</option>';
+						$html .= '<option value="">' . esc_html__( 'Select form field', 'lianamailer-for-gf' ) . '</option>';
 				foreach ( $form_fields as $form_field ) {
 					$html .= sprintf( '<option value="%d">%s</option>', $form_field->id, $form_field->label );
 				}
@@ -781,6 +840,25 @@ class LianaMailerPlugin {
 					$html .= '</div>';
 			}
 		}
+		$html .= '</li>';
+
+		$html .= '<li class="lianamailer_opt_in_setting field_setting">';
+
+			// Opt-in checkbox.
+			$html     .= '<input type="checkbox" id="field_lianamailer_opt_in" onclick="SetLianaMailerOptIn(jQuery(this))" />';
+			$html     .= '<label for="field_lianamailer_opt_in" class="inline">';
+				$html .= esc_html__( 'Opt-in', 'lianamailer-for-gf' );
+				$html .= gform_tooltip( 'opt_in_setting', '', true );
+			$html     .= '</label>';
+
+			// Opt-in label.
+			$html         .= '<div class="lm-opt-in-label-wrapper hidden">';
+				$html     .= '<label for="field_label" class="section_label">';
+					$html .= esc_html__( 'Opt-in Label', 'lianamailer-for-gf' );
+				$html     .= '</label>';
+				$html     .= '<input type="text" id="field_label" onkeyup="SetLianaMailerOptInLabel(jQuery(this)); "/>';
+			$html         .= '</div>';
+
 		$html .= '</li>';
 
 		return $html;
@@ -914,7 +992,8 @@ class LianaMailerPlugin {
 	 */
 	public function set_lianamailer_field_tooltips( $tooltips ) {
 		$lianamailer_tooltips = array(
-			'property_map_setting' => sprintf( '<h6>%s</h6>%s', esc_html__( 'Property map for LianaMailer', 'lianamailer-for-wp' ), esc_html__( 'Map form fields for LianaMailer fields', 'lianamailer-for-wp' ) ),
+			'property_map_setting' => sprintf( '<h6>%s</h6>%s', esc_html__( 'Property map for LianaMailer', 'lianamailer-for-gf' ), esc_html__( 'Map form fields for LianaMailer fields', 'lianamailer-for-gf' ) ),
+			'opt_in_setting'       => sprintf( '<h6>%s</h6>%s', esc_html__( 'Opt-in for LianaMailer', 'lianamailer-for-gf' ), esc_html__( 'Select this if user should be able to subscribe the newsletter without giving consent', 'lianamailer-for-gf' ) ),
 		);
 
 		return array_merge( $tooltips, $lianamailer_tooltips );

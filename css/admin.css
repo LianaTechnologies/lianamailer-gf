@@ -21,6 +21,13 @@ div#tab_lianaMailerSettings select.error {
 .lm-property-wrapper {
 	margin-bottom:10px;
 }
+.lm-opt-in-label-wrapper {
+	margin-top:10px;
+}
+.lianamailer_properties_setting .hidden,
+.lianamailer_opt_in_setting .hidden {
+	display:none;
+}
 .gform-icon--lianamailer::before {
 	content: ')(' !important;
 	font-style:italic;
@@ -39,4 +46,9 @@ div.notices ul {
 div.notices ul li {
 	font-size:12px;
 	list-style-type:disc;
+	color: #9e0b0f;
+}
+.lianamailer_input .gfield_required {
+	font-size: 1rem;
+	font-weight: 700;
 }

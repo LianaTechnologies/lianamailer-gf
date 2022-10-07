@@ -133,6 +133,8 @@ class LianaMailerConnection {
 	 * Ref: https://rest.lianamailer.com/docs/#tag/Members/paths/~1v1~1getRecipientByEmail/post
 	 *
 	 * @param string $email Submitters email.
+	 *
+	 * @return array $result Recipient data.
 	 */
 	public function get_recipient_by_email( $email ) {
 		try {
@@ -156,6 +158,8 @@ class LianaMailerConnection {
 	 * Ref: https://rest.lianamailer.com/docs/#operation/v1-post-getRecipientBySMS
 	 *
 	 * @param string $sms Submitters SMS.
+	 *
+	 * @return array $result Recipient data.
 	 */
 	public function get_recipient_by_sms( $sms ) {
 		try {
@@ -203,13 +207,22 @@ class LianaMailerConnection {
 	 * Add new recipient to mailinglist or update existing one. email and SMS are used to find existing recipient, one of these must be given.
 	 * Ref: https://rest.lianamailer.com/docs/#operation/v1-post-createAndJoinRecipient
 	 *
+	 * @param array   $recipient Existing recipient data.
 	 * @param string  $email Submitters email.
 	 * @param string  $sms Submitters SMS.
 	 * @param string  $list_id LianaMailer list id.
 	 * @param boolean $auto_confirm true if LianaMailer site is not using welcome mail functionality.
 	 */
-	public function create_and_join_recipient( $email, $sms, $list_id, $auto_confirm ) {
+	public function create_and_join_recipient( $recipient, $email, $sms, $list_id, $auto_confirm ) {
 		try {
+			// If email was not mapped, use recipient existing email address.
+			if ( empty( $email ) && isset( $recipient['recipient']['email'] ) & ! empty( $recipient['recipient']['email'] ) ) {
+				$email = $recipient['recipient']['email'];
+			}
+			// If sms was not mapped, use recipient existing sms.
+			if ( empty( $sms ) && isset( $recipient['recipient']['sms'] ) && ! empty( $recipient['recipient']['sms'] ) ) {
+				$sms = $recipient['recipient']['sms'];
+			}
 			settype( $list_id, 'array' );
 			$data = array(
 				null,
