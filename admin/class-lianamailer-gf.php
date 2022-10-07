@@ -294,7 +294,7 @@ class LianaMailer_GF {
 
 		$return = '💥Fail';
 
-		if ( ! empty( $this->lianamailer_gf_options['lianamailer_userid'] ) || ! empty( $this->lianamailer_gf_options['lianamailer_secret_key'] ) || ! empty( $this->lianamailer_gf_options['lianamailer_realm'] ) ) {
+		if ( ! empty( $this->lianamailer_gf_options['lianamailer_userid'] ) || ! empty( $this->lianamailer_gf_options['lianamailer_secret_key'] ) || ! empty( $this->lianamailer_gf_options['lianamailer_realm'] ) || ! empty( $this->lianamailer_gf_options['lianamailer_url'] ) ) {
 			$rest = new Rest(
 				$this->lianamailer_gf_options['lianamailer_userid'],
 				$this->lianamailer_gf_options['lianamailer_secret_key'],

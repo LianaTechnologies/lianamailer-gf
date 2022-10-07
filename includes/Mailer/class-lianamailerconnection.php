@@ -51,29 +51,35 @@ class LianaMailerConnection {
 	private $recipient_properties;
 
 	/**
-	 * REST API options
-	 *
-	 * @var lianamailer_gf_options array
-	 */
-	private $lianamailer_settings = array(
-		'lianamailer_userid'     => '',
-		'lianamailer_secret_key' => '',
-		'lianamailer_realm'      => '',
-		'lianamailer_url'        => '',
-	);
-
-	/**
 	 * Constructor
 	 */
 	public function __construct() {
 
-		$this->lianamailer_settings = get_option( 'lianamailer_gf_options' );
+		$lianamailer_settings = get_option( 'lianamailer_gf_options' );
+
+		$user_id    = null;
+		$secret_key = null;
+		$realm      = null;
+		$url        = null;
+
+		if ( ! empty( $lianamailer_settings['lianamailer_userid'] ) ) {
+			$user_id = $lianamailer_settings['lianamailer_userid'];
+		}
+		if ( ! empty( $lianamailer_settings['lianamailer_secret_key'] ) ) {
+			$secret_key = $lianamailer_settings['lianamailer_secret_key'];
+		}
+		if ( ! empty( $lianamailer_settings['lianamailer_realm'] ) ) {
+			$realm = $lianamailer_settings['lianamailer_realm'];
+		}
+		if ( ! empty( $lianamailer_settings['lianamailer_url'] ) ) {
+			$url = $lianamailer_settings['lianamailer_url'];
+		}
 
 		$this->rest = new Rest(
-			$this->lianamailer_settings['lianamailer_userid'],
-			$this->lianamailer_settings['lianamailer_secret_key'],
-			$this->lianamailer_settings['lianamailer_realm'],
-			$this->lianamailer_settings['lianamailer_url']
+			$user_id,
+			$secret_key,
+			$realm,
+			$url
 		);
 	}
 
