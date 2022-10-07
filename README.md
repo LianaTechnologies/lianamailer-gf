@@ -9,5 +9,5 @@ This plugin provides necessary functions to integrate Gravity Forms with LianaMa
 ## Oneliner to create installable plugin from the repo directory
 
 ```
-zip -r lianamailer-gravityforms-version.zip lianamailer-gravityforms -x "lianamailer-gravityforms/.*"
+zip -r lianamailer-gf.zip lianamailer-gf -x "lianamailer-gf/.*"
 ```

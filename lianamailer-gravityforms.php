@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       LianaMailer - Gravity Forms
+ * Plugin Name:       LianaMailer GF
  * Description:       LianaMailer for Gravity Forms.
  * Version:           1.0.55
  * Requires at least: 5.2
@@ -9,7 +9,7 @@
  * Author URI:        https://www.lianatech.com
  * License:           GPL-3.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0-standalone.html
- * Text Domain:       lianamailer
+ * Text Domain:       lianamailer-gf
  * Domain Path:       /languages
  *
  * PHP Version 7.4
@@ -42,5 +42,5 @@ if ( class_exists( 'GFForms' ) ) {
 	/**
 	 * Include admin menu & panel code.
 	 */
-	include_once dirname( __FILE__ ) . '/admin/class-lianamailer-gravityforms.php';
+	include_once dirname( __FILE__ ) . '/admin/class-lianamailer-gf.php';
 }
