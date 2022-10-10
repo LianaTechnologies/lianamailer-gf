@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       LianaMailer GF
+ * Plugin Name:       LianaMailer for Gravity Forms
  * Description:       LianaMailer for Gravity Forms.
  * Version:           1.0.55
  * Requires at least: 5.2

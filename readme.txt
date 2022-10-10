@@ -1,4 +1,4 @@
-=== LianaMailer GF ===
+=== LianaMailer for Gravity Forms ===
 Contributors: lianatechnologies, jaakkoperoliana, timopohjanvirtaliana
 Tags: newsletter, automation
 Requires at least: 5.8
@@ -10,11 +10,11 @@ License URI: https://www.gnu.org/licenses/gpl-3.0-standalone.html
 
 == Description ==
 
-LianaMailer Gravity Forms is an integration plugin for a [Gravity Forms](https://www.gravityforms.com/) plugin which integrates LianaMailer into Gravity Forms.
+LianaMailer for Gravity Forms is an integration plugin for a [Gravity Forms](https://www.gravityforms.com/) plugin which integrates LianaMailer into Gravity Forms.
 
 = Contribute and translate =
 
-LianaMailer Gravity Forms plugin is developed and supported by Liana Technologies Oy. Join our crew at GitHub or contact using other means.
+LianaMailer for Gravity Forms plugin is developed and supported by Liana Technologies Oy. Join our crew at GitHub or contact using other means.
 
 == Frequently Asked Questions ==
 
