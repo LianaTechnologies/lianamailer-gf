@@ -5,7 +5,7 @@
  * Version:           1.0.55
  * Requires at least: 5.2
  * Requires PHP:      7.4
- * Author:            Liana Technologies
+ * Author:            Liana Technologies Oy
  * Author URI:        https://www.lianatech.com
  * License:           GPL-3.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0-standalone.html
