@@ -42,7 +42,7 @@ REST API documentation of LianaMailer product is available at [our support site]
 
 == Changelog ==
 
-= 1.0.52 2022-10-11 =
+= 1.0.56 2022-10-11 =
 * **Fixed:** Fetch mailing list properly from LianaMailer when "multiple lists" was not enabled.
 
 = 1.0.55 2022-09-23 = Initial public release
