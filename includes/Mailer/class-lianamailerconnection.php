@@ -116,13 +116,19 @@ class LianaMailerConnection {
 			$account_sites = $this->rest->call(
 				'sites',
 				array(
-					'properties'    => true,
-					'lists'         => true,
-					'layout'        => false,
-					'marketing'     => false,
-					'parents'       => false,
-					'children'      => false,
-					'authorization' => false,
+					array(
+						'properties'    => true,
+						'lists'         => true,
+						'layout'        => false,
+						'marketing'     => false,
+						'parents'       => false,
+						'children'      => false,
+						'authorization' => false,
+					),
+					// If account does not have multiple list subscription enabled, this ensures default list is returned.
+					array(
+						'all_lists' => true,
+					),
 				)
 			);
 		} catch ( \Exception $e ) {

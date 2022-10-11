@@ -4,7 +4,7 @@ Tags: newsletter, automation
 Requires at least: 5.8
 Tested up to: 6.0
 Requires PHP: 7.4
-Stable tag: 1.0.55
+Stable tag: 1.0.56
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0-standalone.html
 
@@ -41,5 +41,8 @@ Yes, you can! Join in on our [GitHub repository](https://github.com/LianaTechnol
 REST API documentation of LianaMailer product is available at [our support site](https://support.lianatech.com/lianamailer/settings/rest-api.html).
 
 == Changelog ==
+
+= 1.0.52 2022-10-11 =
+* **Fixed:** Fetch mailing list properly from LianaMailer when "multiple lists" was not enabled.
 
 = 1.0.55 2022-09-23 = Initial public release
