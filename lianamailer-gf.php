@@ -21,7 +21,7 @@
 
 namespace GF_LianaMailer;
 
-define( 'LMCGF_VERSION', '1.0.56' );
+define( 'LMCGF_VERSION', '1.0.57' );
 
 // if Gravity Forms is installed (and active?).
 if ( class_exists( 'GFForms' ) ) {
