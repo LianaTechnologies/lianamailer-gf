@@ -235,21 +235,23 @@ function SetLianaMailerProperty($elem) {
 }
 
 function SetLianaMailerOptIn($elem) {
-	var value         = $elem.is( ':checked' );
-	var opt_in_label  = jQuery( '#field_label' ).val();
-	var consent_label = jQuery( '.field_selected label' ).data( 'consent-label' );
+	// If field was required, append "Required" text on the label
+	var requiredElement = jQuery(".field_selected .gfield_required")[0];
+	var value           = $elem.is( ':checked' );
+	var opt_in_label    = jQuery( '#field_lianamailer_opt_in_label' ).val();
+	var consent_label   = jQuery( '.field_selected label' ).data( 'consent-label' );
 
 	if ( value ) {
 		jQuery( '.lianamailer_opt_in_setting .lm-opt-in-label-wrapper' ).removeClass( 'hidden' );
 
 		if ( opt_in_label ) {
-			jQuery( '.field_selected label' ).text( opt_in_label );
+			jQuery( '.field_selected label' ).text( opt_in_label ).append(requiredElement);
 		} else {
-			jQuery( '.field_selected label' ).text( consent_label );
+			jQuery( '.field_selected label' ).text( consent_label ).append(requiredElement);
 		}
 	} else {
 		jQuery( '.lianamailer_opt_in_setting .lm-opt-in-label-wrapper' ).addClass( 'hidden' );
-		jQuery( '.field_selected label' ).text( consent_label );
+		jQuery( '.field_selected label' ).text( consent_label ).append(requiredElement);
 	}
 	SetFieldProperty( 'lianamailer_opt_in', value );
 }
