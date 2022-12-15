@@ -853,10 +853,10 @@ class LianaMailerPlugin {
 
 			// Opt-in label.
 			$html         .= '<div class="lm-opt-in-label-wrapper hidden">';
-				$html     .= '<label for="field_label" class="section_label">';
+				$html     .= '<label for="field_lianamailer_opt_in_label" class="section_label">';
 					$html .= esc_html__( 'Opt-in Label', 'lianamailer-for-gf' );
 				$html     .= '</label>';
-				$html     .= '<input type="text" id="field_label" onkeyup="SetLianaMailerOptInLabel(jQuery(this)); "/>';
+				$html     .= '<input type="text" id="field_lianamailer_opt_in_label" onkeyup="SetLianaMailerOptInLabel(jQuery(this)); "/>';
 			$html         .= '</div>';
 
 		$html .= '</li>';

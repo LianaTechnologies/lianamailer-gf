@@ -311,6 +311,10 @@ class GF_Field_LianaMailer extends \GF_Field {
 		}
 
 		$form_id = absint( rgget( 'id' ) );
+		// AJAX save does not return this
+		if ( !$form_id ) {
+			return $field_groups;
+		}
 		$form    = \GFAPI::get_form( $form_id );
 		$fields  = $form['fields'];
 

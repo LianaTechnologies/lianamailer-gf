@@ -200,7 +200,7 @@ jQuery( document ).on(
 		}
 
 		jQuery( 'input#field_lianamailer_opt_in' ).prop( 'checked', opt_in );
-		jQuery( 'input#field_label' ).val( opt_in_label );
+		jQuery( 'input#field_lianamailer_opt_in_label' ).val( opt_in_label );
 
 		if (field.lianamailer_properties == undefined) {
 			return;
@@ -255,13 +255,15 @@ function SetLianaMailerOptIn($elem) {
 }
 
 function SetLianaMailerOptInLabel( $elem ) {
+	// If field was required, append "Required" text on the label
+	var requiredElement = jQuery(".field_selected .gfield_required")[0];
 	var value = $elem.val();
 	SetFieldProperty( 'label', value );
 	// If opt-in label is empty, use consent label to prevent labeless input.
 	if ( ! value ) {
 		value = ( jQuery( '.field_selected label' ).data( 'consent-label' ) ? jQuery( '.field_selected label' ).data( 'consent-label' ) : 'No consent found' );
 	}
-	jQuery( '.field_selected label' ).text( value );
+	jQuery( '.field_selected label' ).text( value ).append(requiredElement);
 }
 var deletedLianamailerField = false;
 function StartAddField_Lianamailer(type, element) {
