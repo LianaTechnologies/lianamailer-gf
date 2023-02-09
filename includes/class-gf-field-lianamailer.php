@@ -128,7 +128,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$is_email_or_sms_mapped = ! empty( $options['is_email_or_sms_mapped'] );
 
 		if ( ! $is_connection_valid ) {
-			$notice_msgs[] = 'REST API connection failed. Check <a href="' . admin_url( 'admin.php?page=lianamailergravityforms' ) . '" target="_blank">settings</a>';
+			$notice_msgs[] = 'REST API connection failed. Check <a href="' . admin_url( 'admin.php?page=lianamailergf' ) . '" target="_blank">settings</a>';
 		}
 
 		if ( $is_connection_valid ) {

@@ -196,15 +196,29 @@ class LianaMailerPlugin {
 			$posted_data = array();
 			foreach ( $form['fields'] as $field ) {
 
-				$inputs                    = $field->get_entry_inputs();
-				$value                     = rgar( $entry, (string) $field->id );
-				$posted_data[ $field->id ] = $value;
+				$inputs = $field->get_entry_inputs();
+				// If multivalued input, eg. choices. Fetch values as string imploded with ", ".
+				if ( is_array( $inputs ) ) {
+					$tmp_values = array();
+					foreach ( $inputs as $input ) {
+						$value = rgar( $entry, (string) $input['id'] );
+						if ( ! empty( $value ) ) {
+							$tmp_values[] = $value;
+						}
+					}
+					if ( ! empty( $tmp_values ) ) {
+						$posted_data[ $field->id ] = implode( ', ', $tmp_values );
+					}
+				} else {
+					$value                     = rgar( $entry, (string) $field->id );
+					$posted_data[ $field->id ] = $value;
 
-				if ( $field->id === $field_map_email ) {
-					$email = $value;
-				}
-				if ( $field->id === $field_map_sms ) {
-					$sms = $value;
+					if ( $field->id === $field_map_email ) {
+						$email = $value;
+					}
+					if ( $field->id === $field_map_sms ) {
+						$sms = $value;
+					}
 				}
 			}
 
@@ -314,6 +328,7 @@ class LianaMailerPlugin {
 			self::get_lianamailer_site_data( $selected_site );
 		}
 		self::$is_connection_valid = self::$lianamailer_connection->get_status();
+
 		if ( ! self::$is_connection_valid ) {
 			$options['is_connection_valid'] = false;
 		}
@@ -587,7 +602,7 @@ class LianaMailerPlugin {
 						array(
 							'name' => 'no-settings',
 							'type' => 'html',
-							'html' => ( ! $valid ? 'REST API connection failed. <a href="' . admin_url( 'admin.php?page=lianamailergravityforms' ) . '" target="_blank">Check settings</a>' : 'Unable to find any LianaMailer sites.' ),
+							'html' => ( ! $valid ? 'REST API connection failed. <a href="' . admin_url( 'admin.php?page=lianamailergf' ) . '" target="_blank">Check settings</a>' : 'Unable to find any LianaMailer sites.' ),
 						),
 					),
 				),
@@ -740,7 +755,8 @@ class LianaMailerPlugin {
 			return;
 		}
 
-		$form = self::get_form( $form_id );
+		$form                      = self::get_form( $form_id );
+		self::$is_connection_valid = self::$lianamailer_connection->get_status();
 
 		if ( isset( $form['lianamailer']['lianamailer_site'] ) ) {
 			$selected_site = $form['lianamailer']['lianamailer_site'];
@@ -820,9 +836,9 @@ class LianaMailerPlugin {
 
 		if ( empty( $lianamailer_properties ) ) {
 			if ( ! self::$is_connection_valid ) {
-				$html .= 'REST API connection failed. Check <a href="' . admin_url( 'admin.php?page=lianamailergravityforms' ) . '" target="_blank">settings</a>';
+				$html .= 'REST API connection failed. Check <a href="' . admin_url( 'admin.php?page=lianamailergf' ) . '" target="_blank">settings</a>';
 			} else {
-				$html .= 'No properties found. Check LianaMailer <a href="' . ( isset( $_SERVER['PHP_SELF'] ) ? sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) ) : '' ) . '?page=gf_edit_forms&view=settings&subview=lianaMailerSettings&id=' . rgget( 'id' ) . '" target="_blank">settings</a>';
+				$html .= 'No properties found. Check LianaMailer <a href="' . admin_url( 'admin.php?page=gf_edit_forms&view=settings&subview=lianaMailerSettings&id=' . rgget( 'id' ) ) . '" target="_blank">settings</a>';
 			}
 		} else {
 			foreach ( $lianamailer_properties as $property ) {
