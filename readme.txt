@@ -20,7 +20,7 @@ LianaMailer for Gravity Forms plugin is developed and supported by Liana Technol
 
 = Where can I find LianaMailer documentation and user guides? =
 
-For help setting up and configuring Liana Mailer, please refer to [LianaMailer support site](https://support.lianatech.com/lianamailer.html).
+For help setting up and configuring Liana Mailer, please refer to [LianaMailer support site](https://support.lianatech.com/hc/en-us/categories/4409288848529-LianaMailer).
 
 = Where can I report bugs? =
 
@@ -38,7 +38,7 @@ Yes, you can! Join in on our [GitHub repository](https://github.com/LianaTechnol
 
 = Where can I find REST API documentation? =
 
-REST API documentation of LianaMailer product is available at [our support site](https://support.lianatech.com/lianamailer/settings/rest-api.html).
+REST API documentation of LianaMailer product is available at [our support site](https://support.lianatech.com/hc/en-us/articles/5339910408989-LianaMailer-REST-API).
 
 == Changelog ==
 
