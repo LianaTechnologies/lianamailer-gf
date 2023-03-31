@@ -2,9 +2,9 @@
 Contributors: lianatechnologies, jaakkoperoliana, timopohjanvirtaliana
 Tags: newsletter, automation
 Requires at least: 5.8
-Tested up to: 6.1
+Tested up to: 6.2
 Requires PHP: 7.4
-Stable tag: 1.0.58
+Stable tag: 1.0.6
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0-standalone.html
 
@@ -42,10 +42,11 @@ REST API documentation of LianaMailer product is available at [our support site]
 
 == Changelog ==
 
-= 1.0.58 2023-02-09 =
+= 1.0.6 2023-03-31 =
 * **Fixed:** Possibility to send multi valued inputs eg. choices into LianaMailer. Values are sent as imploded (by ", ") string.
 * **Fixed:** admin_url() in use for "No properties found" error message.
 * **Changed:** Apply is_connection_valid use in add_lianamailer_field().
+* **Support** Support for WordPress 6.2
 
 = 1.0.57 2022-12-15 =
 * **Fixed:** LianaMailer opt-in label did not updated properly in form editor with Gravity Forms version 2.6.8.1
