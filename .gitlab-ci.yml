@@ -1,0 +1,10 @@
+---
+include:
+  - { project: devops/cicd-templates, ref: v1.11.1, file: secret-detection.gitlab-ci.yml }
+
+secret_detection:
+  variables:
+    SECRET_DETECTION_HISTORIC_SCAN: "false"
+
+stages:
+  - test
