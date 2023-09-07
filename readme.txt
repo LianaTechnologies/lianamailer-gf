@@ -2,7 +2,7 @@
 Contributors: lianatechnologies, jaakkoperoliana, timopohjanvirtaliana
 Tags: newsletter, automation
 Requires at least: 5.8
-Tested up to: 6.2
+Tested up to: 6.3
 Requires PHP: 7.4
 Stable tag: 1.0.6
 License: GPL-3.0-or-later
@@ -10,11 +10,22 @@ License URI: https://www.gnu.org/licenses/gpl-3.0-standalone.html
 
 == Description ==
 
-LianaMailer for Gravity Forms is an integration plugin for a [Gravity Forms](https://www.gravityforms.com/) plugin which integrates LianaMailer into Gravity Forms.
+LianaMailer for Gravity Forms is an integration plugin which integrates LianaMailer into [Gravity Forms](https://www.gravityforms.com/). It enables you to have newsletter opt-ins automatically exported from Gravity Forms form to LianaMailer email marketing solution.
+
+= Collect contacts easily from your WordPress site =
+
+LianaMailer allows you to segment contacts, collect email contact lists, and send device-optimized messages in line with your brand with just a few clicks. With this tool, you can develop your performance based on real data and comprehensive reports.
+
+Save time and reduce manual work by using LianaMailer for Gravity Forms to collect contacts, such as newsletter and guide subscribers, from your WordPress site.
 
 = Contribute and translate =
 
-LianaMailer for Gravity Forms plugin is developed and supported by Liana Technologies Oy. Join our crew at GitHub or contact using other means.
+LianaMailer for Gravity Forms plugin is developed and supported by Liana Technologies Oy. Join our crew at GitHub or contact us using other means.
+
+== Screenshots ==
+
+1. Email field in form configuration
+2. LianaMailer settings panel in Gravity Forms
 
 == Frequently Asked Questions ==
 
