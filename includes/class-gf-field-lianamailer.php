@@ -191,7 +191,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$required_attribute = $this->isRequired ? 'aria-required="true"' : '';
 		// phpcs:ignore
 		$required_div       = $this->isRequired ? '<span class="gfield_required">' . $this->get_required_indicator() . '</span>' : '';
-		$data_consent_label = ( $consent_id && $choice['text'] ? "data-consent-label='{$choice['text']}'" : '' );
+		$data_consent_label = ( $consent_id && $choice['text'] ? 'data-consent-label="' . esc_attr( $choice['text'] ) . '"' : '' );
 
 		$choice_markup = "<input name='input_{$input_id}' type='checkbox' value='{$choice_value}' {$checked} id='choice_{$id}' {$tabindex} {$disabled_text} {$required_attribute} />
                         <label for='choice_{$id}' id='label_{$id}' {$data_consent_label}>{$choice['text']} {$required_div}</label>";
