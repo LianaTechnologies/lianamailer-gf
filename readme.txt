@@ -53,6 +53,11 @@ REST API documentation of LianaMailer product is available at [our support site]
 
 == Changelog ==
 
+= 1.0.7 2024-08-29 =
+* **Fixed:** Passing 'now' instead of null (deprecated) as first param for DateTime
+* **Fixed:** HTML in consent label doesn't break the page anymore
+* **Support:** Tested to be working with WordPress 6.6.1
+
 = 1.0.6 2023-03-31 =
 * **Fixed:** Possibility to send multi valued inputs eg. choices into LianaMailer. Values are sent as imploded (by ", ") string.
 * **Fixed:** admin_url() in use for "No properties found" error message.
