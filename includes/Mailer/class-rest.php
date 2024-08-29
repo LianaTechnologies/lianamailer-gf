@@ -130,7 +130,7 @@ class Rest {
 		$contents = wp_json_encode( $args );
 		$md5      = md5( $contents );
 
-		$datetime  = new \DateTime( null, new \DateTimeZone( 'Europe/Helsinki' ) );
+		$datetime  = new \DateTime( 'now', new \DateTimeZone( 'Europe/Helsinki' ) );
 		$timestamp = $datetime->format( 'c' );
 		$type      = 'POST';
 		$url       = $this->api_url . '/api/v' . $this->api_version . '/' . $method;
