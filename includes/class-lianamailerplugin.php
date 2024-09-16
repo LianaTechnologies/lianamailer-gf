@@ -243,7 +243,7 @@ class LianaMailerPlugin {
 				/**
 				 * Autoconfirm subscription if:
 				 * LM site has "registration_needs_confirmation" disabled
-				 * email set
+				 * email is not set
 				 * LM site has welcome mail set
 				 */
 				$auto_confirm = ( empty( $customer_settings['registration_needs_confirmation'] ) || ! $email || ! self::$site_data['welcome'] );
@@ -271,8 +271,10 @@ class LianaMailerPlugin {
 					self::$lianamailer_connection->add_recipient_consent( $consent_data );
 				}
 
-				// if not existing recipient or recipient was not confirmed and site is using welcome -mail and LM account has double opt-in enabled and email address set.
-				if ( ( ! $recipient || ! $recipient['recipient']['confirmed'] ) && self::$site_data['welcome'] && $customer_settings['registration_needs_confirmation'] && $email ) {
+				// send welcome mail if:
+				// not existing recipient OR recipient was not previously enabled OR registration needs confirmation is enabled
+				// and site is using welcome -mail and LM account has double opt-in enabled and email address set.
+				if ( ( ! $recipient || ! $recipient['recipient']['enabled'] || $customer_settings['registration_needs_confirmation'] ) && self::$site_data['welcome'] && $email ) {
 					self::$lianamailer_connection->send_welcome_mail( self::$site_data['domain'] );
 				}
 			}

@@ -53,6 +53,11 @@ REST API documentation of LianaMailer product is available at [our support site]
 
 == Changelog ==
 
+= 1.0.70 2024-09-16 =
+* **Fixed:** Version numbering ...
+* **Fixed:** Fixed logic related to welcome emails to mimic LianaMailer
+* **Support:** Tested to be working with WordPress 6.6.2
+
 = 1.0.7 2024-08-29 =
 * **Fixed:** Passing 'now' instead of null (deprecated) as first param for DateTime
 * **Fixed:** HTML in consent label doesn't break the page anymore
