@@ -9,7 +9,6 @@
 
 jQuery( document ).ready(
 	function($) {
-
 		var $enableCb          = $( '#tab_lianaMailerSettings input#lianamailer_enabled' );
 		var $siteSelect        = $( '#tab_lianaMailerSettings select#lianamailer_site' );
 		var $mailingListSelect = $( '#tab_lianaMailerSettings select#lianamailer_mailing_list' );
@@ -20,7 +19,6 @@ jQuery( document ).ready(
 		}
 
 		function toggleLianaMailerPlugin() {
-
 			disableElement( $mailingListSelect );
 			disableElement( $consentSelect );
 
@@ -113,7 +111,6 @@ jQuery( document ).ready(
 
 					$.ajax( params ).done(
 						function( data ) {
-
 							var lists    = data.lists;
 							var consents = data.consents;
 

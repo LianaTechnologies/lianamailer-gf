@@ -244,7 +244,7 @@ class LianaMailerPlugin {
 				 * Autoconfirm subscription if:
 				 * LM site has "registration_needs_confirmation" disabled
 				 * email is not set
-				 * LM site has welcome mail set
+				 * LM site doesn't have welcome mail set
 				 */
 				$auto_confirm = ( empty( $customer_settings['registration_needs_confirmation'] ) || ! $email || ! self::$site_data['welcome'] );
 
@@ -636,6 +636,9 @@ class LianaMailerPlugin {
 		$consent_list_choices = $site_choices;
 
 		foreach ( $account_sites as $account_site ) {
+			if ( $account_site['redirect'] || $account_site['replaced_by'] ) {
+				continue;
+			}
 			$site_choices[] = array(
 				'label' => $account_site['domain'],
 				'value' => $account_site['domain'],
