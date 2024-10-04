@@ -134,6 +134,9 @@ class LianaMailerConnection {
 		} catch ( \Exception $e ) {
 			$account_sites = array();
 		}
+		if ( ! $account_sites ) {
+			return array();
+		}
 		return $account_sites;
 	}
 
@@ -345,11 +348,13 @@ class LianaMailerConnection {
 	 * Ref: https://rest.lianamailer.com/docs/#operation/v1-post-getCustomerProperties
 	 */
 	public function get_lianamailer_properties() {
-		$fields = array();
 		try {
 			$fields = $this->rest->call( 'getCustomerProperties' );
 		} catch ( \Exception $e ) {
 			$fields = array();
+		}
+		if ( ! $fields ) {
+			return array();
 		}
 		return $fields;
 	}
@@ -359,11 +364,13 @@ class LianaMailerConnection {
 	 * Ref: https://rest.lianamailer.com/docs/#operation/v1-post-getCustomer
 	 */
 	public function get_lianamailer_customer() {
-		$customer = array();
 		try {
 			$customer = $this->rest->call( 'getCustomer' );
 		} catch ( \Exception $e ) {
 			$customer = array();
+		}
+		if ( ! $customer ) {
+			return array();
 		}
 		return $customer;
 	}
