@@ -329,10 +329,12 @@ class LianaMailerPlugin {
 			$selected_site = $form['lianamailer']['lianamailer_site'];
 			self::get_lianamailer_site_data( $selected_site );
 		}
-		self::$is_connection_valid = self::$lianamailer_connection->get_status();
-
-		if ( ! self::$is_connection_valid ) {
-			$options['is_connection_valid'] = false;
+		if ( ! get_transient( 'lianamailer_is_connection_valid' ) || is_admin() ) {
+			self::$is_connection_valid = self::$lianamailer_connection->get_status();
+			if ( ! self::$is_connection_valid ) {
+				$options['is_connection_valid'] = false;
+			}
+			set_transient( 'lianamailer_is_connection_valid', self::$is_connection_valid, DAY_IN_SECONDS );
 		}
 		// Set LianaMailer plugin state.
 		if ( isset( $form['lianamailer']['lianamailer_enabled'] ) ) {
@@ -902,6 +904,15 @@ class LianaMailerPlugin {
 			return;
 		}
 
+		// use a cached dataset on the front end to avoid excessive REST calls.
+		if ( ! is_admin() ) {
+			$site_data = get_transient( 'lianamailer_' . $selected_site );
+			if ( ! empty( $site_data ) ) {
+				self::$site_data = $site_data;
+				return;
+			}
+		}
+
 		// Getting all sites from LianaMailer.
 		$account_sites = self::$lianamailer_connection->get_account_sites();
 
@@ -932,6 +943,7 @@ class LianaMailerPlugin {
 				$site_data['lists']      = $site['lists'];
 				$site_data['consents']   = $site_consents;
 				self::$site_data         = $site_data;
+				set_transient( 'lianamailer_' . $selected_site, $site_data, DAY_IN_SECONDS );
 			}
 		}
 	}
