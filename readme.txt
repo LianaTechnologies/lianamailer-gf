@@ -4,7 +4,7 @@ Tags: newsletter, automation
 Requires at least: 5.8
 Tested up to: 6.6.2
 Requires PHP: 7.4
-Stable tag: 1.0.73
+Stable tag: 1.0.74
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0-standalone.html
 
@@ -52,6 +52,9 @@ Yes, you can! Join in on our [GitHub repository](https://github.com/LianaTechnol
 REST API documentation of LianaMailer product is available at [our support site](https://support.lianatech.com/hc/en-us/articles/5339910408989-LianaMailer-REST-API).
 
 == Changelog ==
+
+= 1.0.74 2024-11-07 =
+* **Fixed:** Consent checkbox is now optional and can now be hidden from field's Advanced Settings tab
 
 = 1.0.73 2024-10-22 =
 * **Fixed:** Avoid excessive REST API calls

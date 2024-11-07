@@ -121,9 +121,7 @@ class LianaMailerPlugin {
 	 * @return void
 	 */
 	public function do_newsletter_subscription( $entry, $form ) {
-
 		try {
-
 			$lianamailer_settings = $form['lianamailer'];
 			$is_plugin_enabled    = $lianamailer_settings['lianamailer_enabled'] ?? false;
 			$list_id              = intval( $lianamailer_settings['lianamailer_mailing_list'] ) ?? null;
@@ -150,10 +148,6 @@ class LianaMailerPlugin {
 			// If opt-in was enabled but without label and consent.
 			if ( $is_opt_in_enabled && ! $opt_in_label && ! $consent_id ) {
 				throw new \Exception( 'Opt-in was enabled without label and consent' );
-			}
-			// If consent is not set and opt-in is not enabled.
-			if ( ! $consent_id && ! $is_opt_in_enabled ) {
-				throw new \Exception( 'No consent set and opt-in was disabled' );
 			}
 
 			// If LianaMailer field was not posted, bail out.
@@ -358,11 +352,6 @@ class LianaMailerPlugin {
 		// If GF LianaMailer settings doesnt have consent set or if LianaMailer site doesnt have any consents.
 		if ( ! isset( $form['lianamailer']['lianamailer_consent'] ) || empty( $form['lianamailer']['lianamailer_consent'] ) || ! isset( self::$site_data['consents'] ) || empty( self::$site_data['consents'] ) ) {
 			$options['consent_label'] = 'No consent found';
-
-			// If not using opt-in or opt_in_label is not set, precheck consent checkbox in public form.
-			if ( false === $options['opt_in'] || ! $options['opt_in_label'] ) {
-				$options['precheck'] = true;
-			}
 		} else {
 			foreach ( self::$site_data['consents'] as $consent ) {
 				if ( intval( $form['lianamailer']['lianamailer_consent'] ) === $consent['consent_id'] ) {
@@ -1026,7 +1015,7 @@ class LianaMailerPlugin {
 	public function set_lianamailer_field_tooltips( $tooltips ) {
 		$lianamailer_tooltips = array(
 			'property_map_setting' => sprintf( '<h6>%s</h6>%s', esc_html__( 'Property map for LianaMailer', 'lianamailer-for-gf' ), esc_html__( 'Map form fields for LianaMailer fields', 'lianamailer-for-gf' ) ),
-			'opt_in_setting'       => sprintf( '<h6>%s</h6>%s', esc_html__( 'Opt-in for LianaMailer', 'lianamailer-for-gf' ), esc_html__( 'Select this if user should be able to subscribe the newsletter without giving consent', 'lianamailer-for-gf' ) ),
+			'opt_in_setting'       => sprintf( '<h6>%s</h6>%s', esc_html__( 'Opt-in for LianaMailer', 'lianamailer-for-gf' ), esc_html__( 'Check this field if no LianaMailer consent is available but you want to display a custom checkbox for consent', 'lianamailer-for-gf' ) ),
 		);
 
 		return array_merge( $tooltips, $lianamailer_tooltips );

@@ -51,13 +51,14 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$is_admin           = $is_form_editor || $is_entry_detail;
 
 		$admin_buttons = $this->get_admin_buttons();
+		$admin_hidden_markup = ( $is_admin && $this->visibility == 'hidden' ) ? $this->get_hidden_admin_markup() : '';
 
 		$description = $this->get_description( $this->description, 'gfield_description' );
 		if ( $this->is_description_above( $form ) ) {
 			$clear         = $is_admin ? "<div class='gf_clear'></div>" : '';
-			$field_content = sprintf( "%s%s{FIELD}%s$clear", $admin_buttons, $description, $validation_message );
+			$field_content = sprintf( "%s%s%s{FIELD}%s$clear", $admin_buttons, $admin_hidden_markup, $description, $validation_message );
 		} else {
-			$field_content = sprintf( '%s{FIELD}%s%s', $admin_buttons, $description, $validation_message );
+			$field_content = sprintf( '%s%s{FIELD}%s%s', $admin_buttons, $admin_hidden_markup, $description, $validation_message );
 		}
 
 		return $field_content;
@@ -99,7 +100,11 @@ class GF_Field_LianaMailer extends \GF_Field {
 		/**
 		 * If plugin is not enabled, consent not selected or mailing list not selected, hide the input from public form.
 		 */
-		return sprintf( '<div ' . ( $this->hide_input_on_public_form( $options ) ? ' style="display:none;"' : '' ) . " class='ginput_container ginput_container_checkbox lianamailer_input'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );
+		if ( $this->hide_input_on_public_form( $options ) ) {
+
+			return '<input type="hidden" class="gform_hidden lianamailer_input" name="input_' . $id . '" id="' . $field_id . '" value="1" />';
+		}
+		return sprintf( "<div class='ginput_container ginput_container_checkbox lianamailer_input'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );
 	}
 
 	/**
@@ -138,7 +143,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 			if ( empty( $mailing_list ) ) {
 				$notice_msgs[] = 'No mailing list selected';
 			}
-			if ( empty( $consent_id ) && ( ! $opt_in || $is_admin ) ) {
+			if ( empty( $consent_id ) && ( ! $opt_in && $is_admin ) ) {
 				$notice_msgs[] = 'No consent found.';
 			}
 
@@ -442,6 +447,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 			// Newsletter subscription opt-in settings. Includes checkbox and label.
 			'lianamailer_opt_in_setting',
 			'rules_setting',
+			'visibility_setting',
 		);
 	}
 }
