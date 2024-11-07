@@ -83,7 +83,7 @@ class Rest {
 	public function __construct( $api_user, $api_key, $api_realm = 'PV', $api_url = 'https://rest.lianamailer.com', $api_version = null ) {
 		$this->api_user    = $api_user;
 		$this->api_key     = $api_key;
-		$this->api_url     = $api_url;
+		$this->api_url     = untrailingslashit( $api_url );
 		$this->api_version = empty( $api_version ) ? $this->api_version : intval( $api_version );
 		$this->api_realm   = $api_realm;
 	}
