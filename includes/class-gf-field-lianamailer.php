@@ -441,12 +441,16 @@ class GF_Field_LianaMailer extends \GF_Field {
 	 */
 	public function get_form_editor_field_settings() {
 		return array(
-			'css_class_setting',
+			// General Tab
 			// LM Properties (select).
 			'lianamailer_properties_setting',
 			// Newsletter subscription opt-in settings. Includes checkbox and label.
 			'lianamailer_opt_in_setting',
 			'rules_setting',
+			// Appearance Tab
+			'css_class_setting',
+			// Advanced Tab
+			'admin_label_setting',
 			'visibility_setting',
 		);
 	}
