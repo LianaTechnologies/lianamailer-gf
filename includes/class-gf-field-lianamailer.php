@@ -93,7 +93,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 			'precheck'               => false,
 			'is_connection_valid'    => true,
 			'is_admin'               => $is_admin,
-			'is_plugin_enabled'      => false,
+			'is_plugin_enabled'      => $is_plugin_enabled,
 			'is_email_or_sms_mapped' => false,
 		);
 		$options = apply_filters( 'gform_lianamailer_get_integration_options', $options, $form_id );
@@ -101,8 +101,10 @@ class GF_Field_LianaMailer extends \GF_Field {
 		 * If plugin is not enabled, consent not selected or mailing list not selected, hide the input from public form.
 		 */
 		if ( $this->hide_input_on_public_form( $options ) ) {
+			// If the field is not required, submit empty value when hidden
+			$hidden_value = ( $this->isRequired ) ? '1' : '';
 
-			return '<input type="hidden" class="gform_hidden lianamailer_input" name="input_' . $id . '" id="' . $field_id . '" value="1" />';
+			return '<input type="hidden" class="gform_hidden lianamailer_input" name="input_' . $id . '" id="' . $field_id . '" value="' . $hidden_value . '" />';
 		}
 		return sprintf( "<div class='ginput_container ginput_container_checkbox lianamailer_input'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );
 	}
