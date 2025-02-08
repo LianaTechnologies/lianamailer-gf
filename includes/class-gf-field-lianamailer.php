@@ -454,6 +454,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 			// Advanced Tab
 			'admin_label_setting',
 			'visibility_setting',
+			'conditional_logic_field_setting',
 		);
 	}
 }
