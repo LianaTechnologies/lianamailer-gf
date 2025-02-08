@@ -196,6 +196,13 @@ class LianaMailerPlugin {
 				if ( is_array( $inputs ) ) {
 					if ( 'name' === $input_type ) {
 						$posted_data[ $field->id ] = \GF_Fields::get( 'name' )->get_value_export( $entry, $field->id );
+
+						foreach ( $inputs as $input ) {
+							$value = rgar( $entry, (string) $input['id'] );
+							if ( ! empty( $value ) ) {
+								$posted_data[ (string) $input['id'] ] = $value;
+							}
+						}
 					} else {
 						$tmp_values = array();
 						foreach ( $inputs as $input ) {
@@ -852,6 +859,20 @@ class LianaMailerPlugin {
 						$html .= '<option value="">' . esc_html__( 'Select form field', 'lianamailer-for-gf' ) . '</option>';
 				foreach ( $form_fields as $form_field ) {
 					$html .= sprintf( '<option value="%d">%s</option>', $form_field->id, $form_field->label );
+
+					$inputs     = $form_field->get_entry_inputs();
+					$input_type = $form_field->get_input_type();
+
+					if ( 'name' === $input_type && is_array( $inputs ) ) {
+						// Add name field subfields as choices.
+						foreach ( $inputs as $input ) {
+							$html .= sprintf(
+								'<option value="%s">%s</option>',
+								$input['id'],
+								strip_tags( \GFCommon::get_label( $form_field, $input['id'] ) )
+							);
+						}
+					}
 				}
 					$html .= '</select>';
 					$html .= '</div>';
