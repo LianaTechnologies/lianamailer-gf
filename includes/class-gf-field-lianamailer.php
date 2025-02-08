@@ -411,7 +411,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$field_icon = '<span class="gfield-field-action gfield-icon">' . \GFCommon::get_icon_markup( array( 'icon' => $this->get_form_editor_field_icon() ) ) . '</span>';
 
 		$admin_buttons = "
-			<div class='gfield-admin-icons'>
+			<div class='gfield-admin-icons gform-theme__disable'>
 				{$drag_handle}
 				{$edit_field_link}
 				{$delete_field_link}
