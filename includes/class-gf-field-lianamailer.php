@@ -200,8 +200,8 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$required_div       = $this->isRequired ? '<span class="gfield_required">' . $this->get_required_indicator() . '</span>' : '';
 		$data_consent_label = ( $consent_id && $choice['text'] ? 'data-consent-label="' . esc_attr( $choice['text'] ) . '"' : '' );
 
-		$choice_markup = "<input name='input_{$input_id}' type='checkbox' value='{$choice_value}' {$checked} id='choice_{$id}' {$tabindex} {$disabled_text} {$required_attribute} />
-                        <label for='choice_{$id}' id='label_{$id}' {$data_consent_label}>{$choice['text']} {$required_div}</label>";
+		$choice_markup = "<input name='input_{$input_id}' type='checkbox' value='{$choice_value}' {$checked} id='input_{$id}' {$tabindex} {$disabled_text} {$required_attribute} />
+                        <label for='input_{$id}' id='label_{$id}' {$data_consent_label}>{$choice['text']} {$required_div}</label>";
 
 		if ( $is_admin && ! empty( $notice_msgs ) ) {
 			$choice_markup     .= '<div class="notices">';
@@ -456,5 +456,14 @@ class GF_Field_LianaMailer extends \GF_Field {
 			'visibility_setting',
 			'conditional_logic_field_setting',
 		);
+	}
+
+	/**
+	 * Enables conditional logic based on this field.
+	 *
+	 * @return bool
+	 */
+	public function is_conditional_logic_supported() {
+		return true;
 	}
 }
