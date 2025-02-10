@@ -93,7 +93,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 			'precheck'               => false,
 			'is_connection_valid'    => true,
 			'is_admin'               => $is_admin,
-			'is_plugin_enabled'      => false,
+			'is_plugin_enabled'      => $is_plugin_enabled,
 			'is_email_or_sms_mapped' => false,
 		);
 		$options = apply_filters( 'gform_lianamailer_get_integration_options', $options, $form_id );
@@ -101,8 +101,10 @@ class GF_Field_LianaMailer extends \GF_Field {
 		 * If plugin is not enabled, consent not selected or mailing list not selected, hide the input from public form.
 		 */
 		if ( $this->hide_input_on_public_form( $options ) ) {
+			// If the field is not required, submit empty value when hidden
+			$hidden_value = ( $this->isRequired ) ? '1' : '';
 
-			return '<input type="hidden" class="gform_hidden lianamailer_input" name="input_' . $id . '" id="' . $field_id . '" value="1" />';
+			return '<input type="hidden" class="gform_hidden lianamailer_input" name="input_' . $id . '" id="' . $field_id . '" value="' . $hidden_value . '" />';
 		}
 		return sprintf( "<div class='ginput_container ginput_container_checkbox lianamailer_input'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );
 	}
@@ -198,8 +200,8 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$required_div       = $this->isRequired ? '<span class="gfield_required">' . $this->get_required_indicator() . '</span>' : '';
 		$data_consent_label = ( $consent_id && $choice['text'] ? 'data-consent-label="' . esc_attr( $choice['text'] ) . '"' : '' );
 
-		$choice_markup = "<input name='input_{$input_id}' type='checkbox' value='{$choice_value}' {$checked} id='choice_{$id}' {$tabindex} {$disabled_text} {$required_attribute} />
-                        <label for='choice_{$id}' id='label_{$id}' {$data_consent_label}>{$choice['text']} {$required_div}</label>";
+		$choice_markup = "<input name='input_{$input_id}' type='checkbox' value='{$choice_value}' {$checked} id='input_{$id}' {$tabindex} {$disabled_text} {$required_attribute} />
+                        <label for='input_{$id}' id='label_{$id}' {$data_consent_label}>{$choice['text']} {$required_div}</label>";
 
 		if ( $is_admin && ! empty( $notice_msgs ) ) {
 			$choice_markup     .= '<div class="notices">';
@@ -411,7 +413,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 		$field_icon = '<span class="gfield-field-action gfield-icon">' . \GFCommon::get_icon_markup( array( 'icon' => $this->get_form_editor_field_icon() ) ) . '</span>';
 
 		$admin_buttons = "
-			<div class='gfield-admin-icons'>
+			<div class='gfield-admin-icons gform-theme__disable'>
 				{$drag_handle}
 				{$edit_field_link}
 				{$delete_field_link}
@@ -441,13 +443,27 @@ class GF_Field_LianaMailer extends \GF_Field {
 	 */
 	public function get_form_editor_field_settings() {
 		return array(
-			'css_class_setting',
+			// General Tab
 			// LM Properties (select).
 			'lianamailer_properties_setting',
 			// Newsletter subscription opt-in settings. Includes checkbox and label.
 			'lianamailer_opt_in_setting',
 			'rules_setting',
+			// Appearance Tab
+			'css_class_setting',
+			// Advanced Tab
+			'admin_label_setting',
 			'visibility_setting',
+			'conditional_logic_field_setting',
 		);
+	}
+
+	/**
+	 * Enables conditional logic based on this field.
+	 *
+	 * @return bool
+	 */
+	public function is_conditional_logic_supported() {
+		return true;
 	}
 }

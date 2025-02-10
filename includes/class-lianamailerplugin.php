@@ -190,18 +190,30 @@ class LianaMailerPlugin {
 			$posted_data = array();
 			foreach ( $form['fields'] as $field ) {
 
-				$inputs = $field->get_entry_inputs();
-				// If multivalued input, eg. choices. Fetch values as string imploded with ", ".
+				$inputs     = $field->get_entry_inputs();
+				$input_type = $field->get_input_type();
+				// If multivalued input, eg. choices. Fetch values as string imploded with ", " unless it's a name field.
 				if ( is_array( $inputs ) ) {
-					$tmp_values = array();
-					foreach ( $inputs as $input ) {
-						$value = rgar( $entry, (string) $input['id'] );
-						if ( ! empty( $value ) ) {
-							$tmp_values[] = $value;
+					if ( 'name' === $input_type ) {
+						$posted_data[ $field->id ] = \GF_Fields::get( 'name' )->get_value_export( $entry, $field->id );
+
+						foreach ( $inputs as $input ) {
+							$value = rgar( $entry, (string) $input['id'] );
+							if ( ! empty( $value ) ) {
+								$posted_data[ (string) $input['id'] ] = $value;
+							}
 						}
-					}
-					if ( ! empty( $tmp_values ) ) {
-						$posted_data[ $field->id ] = implode( ', ', $tmp_values );
+					} else {
+						$tmp_values = array();
+						foreach ( $inputs as $input ) {
+							$value = rgar( $entry, (string) $input['id'] );
+							if ( ! empty( $value ) ) {
+								$tmp_values[] = $value;
+							}
+						}
+						if ( ! empty( $tmp_values ) ) {
+							$posted_data[ $field->id ] = implode( ', ', $tmp_values );
+						}
 					}
 				} else {
 					$value                     = rgar( $entry, (string) $field->id );
@@ -847,6 +859,23 @@ class LianaMailerPlugin {
 						$html .= '<option value="">' . esc_html__( 'Select form field', 'lianamailer-for-gf' ) . '</option>';
 				foreach ( $form_fields as $form_field ) {
 					$html .= sprintf( '<option value="%d">%s</option>', $form_field->id, $form_field->label );
+
+					$inputs     = $form_field->get_entry_inputs();
+					$input_type = $form_field->get_input_type();
+
+					if ( 'name' === $input_type && is_array( $inputs ) ) {
+						// Add used name field subfields as choices.
+						foreach ( $inputs as $input ) {
+							if ( isset( $input['isHidden'] ) && $input['isHidden'] ) {
+								continue;
+							}
+							$html .= sprintf(
+								'<option value="%s">%s</option>',
+								$input['id'],
+								strip_tags( \GFCommon::get_label( $form_field, $input['id'] ) )
+							);
+						}
+					}
 				}
 					$html .= '</select>';
 					$html .= '</div>';
