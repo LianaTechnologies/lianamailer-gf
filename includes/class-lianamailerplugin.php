@@ -864,8 +864,11 @@ class LianaMailerPlugin {
 					$input_type = $form_field->get_input_type();
 
 					if ( 'name' === $input_type && is_array( $inputs ) ) {
-						// Add name field subfields as choices.
+						// Add used name field subfields as choices.
 						foreach ( $inputs as $input ) {
+							if ( isset( $input['isHidden'] ) && $input['isHidden'] ) {
+								continue;
+							}
 							$html .= sprintf(
 								'<option value="%s">%s</option>',
 								$input['id'],
