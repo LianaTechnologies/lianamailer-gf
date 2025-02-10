@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       LianaMailer for Gravity Forms
  * Description:       LianaMailer for Gravity Forms.
- * Version:           1.0.74
+ * Version:           1.0.75
  * Requires at least: 5.2
  * Requires PHP:      7.4
  * Author:            Liana Technologies Oy
