@@ -124,8 +124,8 @@ class LianaMailerPlugin {
 		try {
 			$lianamailer_settings = $form['lianamailer'];
 			$is_plugin_enabled    = $lianamailer_settings['lianamailer_enabled'] ?? false;
-			$list_id              = intval( $lianamailer_settings['lianamailer_mailing_list'] ) ?? null;
-			$consent_id           = intval( $lianamailer_settings['lianamailer_consent'] ) ?? null;
+			$list_id              = intval( $lianamailer_settings['lianamailer_mailing_list'] ?? null);
+			$consent_id           = intval( $lianamailer_settings['lianamailer_consent'] ?? null);
 			$selected_site        = $lianamailer_settings['lianamailer_site'] ?? null;
 
 			if ( ! intval( $is_plugin_enabled ) ) {
