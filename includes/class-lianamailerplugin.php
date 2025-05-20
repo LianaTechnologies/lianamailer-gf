@@ -1024,14 +1024,14 @@ class LianaMailerPlugin {
 	 * Enqueue plugin CSS and JS
 	 */
 	public function add_lianamailer_plugin_scripts() {
-		wp_enqueue_style( 'lianamailer-gravity-forms-admin-css', dirname( plugin_dir_url( __FILE__ ) ) . '/css/admin.css', array(), LMCGF_VERSION );
+		wp_enqueue_style( 'lianamailer-gravity-forms-admin-css', LMCGF_URL . 'css/admin.css', array(), LMCGF_VERSION );
 
 		$form_id = absint( rgget( 'id' ) );
 		$js_vars = array(
 			'url'     => admin_url( 'admin-ajax.php' ),
 			'form_id' => $form_id,
 		);
-		wp_register_script( 'lianamailer-gravity-forms-plugin', dirname( plugin_dir_url( __FILE__ ) ) . '/js/lianamailer-plugin.js', array( 'jquery' ), LMCGF_VERSION, false );
+		wp_register_script( 'lianamailer-gravity-forms-plugin', LMCGF_URL . 'js/lianamailer-plugin.js', array( 'jquery' ), LMCGF_VERSION, false );
 		wp_localize_script( 'lianamailer-gravity-forms-plugin', 'lianaMailerConnection', $js_vars );
 		wp_enqueue_script( 'lianamailer-gravity-forms-plugin' );
 	}
