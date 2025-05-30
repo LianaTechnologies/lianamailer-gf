@@ -1,5 +1,5 @@
 === LianaMailer for Gravity Forms ===
-Contributors: lianatechnologies, jaakkoperoliana, timopohjanvirtaliana
+Contributors: lianatechnologies, jaakkoperoliana, timopohjanvirtaliana, samisiuvatti
 Tags: newsletter, automation
 Requires at least: 5.8
 Tested up to: 6.8

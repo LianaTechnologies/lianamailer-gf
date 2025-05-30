@@ -213,6 +213,7 @@ class LianaMailerConnection {
 	 *
 	 * @param string  $email Submitters email.
 	 * @param boolean $auto_confirm true if LianaMailer site is not using welcome mail functionality.
+	 * @param string  $user_ip User IP address.
 	 */
 	public function reactivate_recipient( $email, $auto_confirm, $user_ip = '' ) {
 
@@ -240,6 +241,7 @@ class LianaMailerConnection {
 	 * @param string  $sms Submitters SMS.
 	 * @param string  $list_id LianaMailer list id.
 	 * @param boolean $auto_confirm true if LianaMailer site is not using welcome mail functionality.
+	 * @param string  $user_ip User IP address.
 	 */
 	public function create_and_join_recipient( $recipient, $email, $sms, $list_id, $auto_confirm, $user_ip = '' ) {
 		try {
@@ -258,7 +260,7 @@ class LianaMailerConnection {
 				$sms,
 				$this->recipient_properties,
 				$auto_confirm,
-				'Via WordPress from IP '. $user_ip, // Reason.
+				'Via WordPress from IP ' . $user_ip, // Reason.
 				esc_url( home_url( $this->get_wordpress_request() ) ),
 				$list_id,
 			);
