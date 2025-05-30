@@ -268,7 +268,7 @@ class LianaMailerPlugin {
 
 				// if recipient found from LM and it not enabled and subscription had email set, re-enable it.
 				if ( ! is_null( $recipient ) && isset( $recipient['recipient']['enabled'] ) && false === $recipient['recipient']['enabled'] && $email ) {
-					self::$lianamailer_connection->reactivate_recipient( $email, $auto_confirm );
+					self::$lianamailer_connection->reactivate_recipient( $email, $auto_confirm, $user_ip );
 				}
 				self::$lianamailer_connection->create_and_join_recipient( $recipient, $email, $sms, $list_id, $auto_confirm, $user_ip );
 

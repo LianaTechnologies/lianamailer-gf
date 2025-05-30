@@ -214,13 +214,13 @@ class LianaMailerConnection {
 	 * @param string  $email Submitters email.
 	 * @param boolean $auto_confirm true if LianaMailer site is not using welcome mail functionality.
 	 */
-	public function reactivate_recipient( $email, $auto_confirm ) {
+	public function reactivate_recipient( $email, $auto_confirm, $user_ip = '' ) {
 
 		try {
 			$data         = array(
 				$email,
 				'User',
-				'Recipient filled out a form on website.',
+				'Via WordPress from IP '. $user_ip, // Reason.
 				$auto_confirm,
 				null,
 				esc_url( home_url( $this->get_wordpress_request() ) ),

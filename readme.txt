@@ -4,7 +4,7 @@ Tags: newsletter, automation
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.78
+Stable tag: 1.0.79
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0-standalone.html
 
@@ -53,7 +53,7 @@ REST API documentation of LianaMailer product is available at [our support site]
 
 == Changelog ==
 
-= 1.0.78 2025-05-30 =
+= 1.0.79 2025-05-30 =
 * **Change:** Send subscriber's IP to LianaMailer
 
 = 1.0.76 2025-03-21 =
