@@ -264,11 +264,13 @@ class LianaMailerPlugin {
 					$recipient = self::$lianamailer_connection->get_recipient_by_sms( $sms );
 				}
 
+				$user_ip = self::get_user_ip_address();
+
 				// if recipient found from LM and it not enabled and subscription had email set, re-enable it.
 				if ( ! is_null( $recipient ) && isset( $recipient['recipient']['enabled'] ) && false === $recipient['recipient']['enabled'] && $email ) {
 					self::$lianamailer_connection->reactivate_recipient( $email, $auto_confirm );
 				}
-				self::$lianamailer_connection->create_and_join_recipient( $recipient, $email, $sms, $list_id, $auto_confirm );
+				self::$lianamailer_connection->create_and_join_recipient( $recipient, $email, $sms, $list_id, $auto_confirm, $user_ip );
 
 				$consent_key = array_search( $consent_id, array_column( self::$site_data['consents'], 'consent_id' ), true );
 				if ( false !== $consent_key ) {
@@ -1049,6 +1051,30 @@ class LianaMailerPlugin {
 
 		return array_merge( $tooltips, $lianamailer_tooltips );
 	}
-}
 
-?>
+	/**
+	 * Get the user's IP address from the server variables.
+	 *
+	 * @return string The user's IP address, sanitized.
+	 */
+	public static function get_user_ip_address() {
+		// Ensure that $_SERVER is set and is an array.
+		if ( ! isset( $_SERVER ) || ! is_array( $_SERVER ) ) {
+			return '';
+		}
+		// Proxies can send the real IP address in different headers like HTTP_CLIENT_IP, HTTP_X_FORWARDED_FOR, or FORWARDED.
+		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
+			return sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
+		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) || ! empty( $_SERVER['FORWARDED'] ) ) {
+			$ip_string = ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['FORWARDED'];
+			if ( strpos( $ip_string, ',' ) !== false ) {
+				// If there are multiple IPs, take the first one.
+				$ips = explode( ',', $ip_string );
+				return sanitize_text_field( wp_unslash( trim( $ips[0] ) ) );
+			}
+			// If there is only one IP, return it.
+			return sanitize_text_field( wp_unslash( $ip_string ) );
+		}
+		return sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+	}
+}
