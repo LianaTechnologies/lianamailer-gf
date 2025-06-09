@@ -151,7 +151,7 @@ class LianaMailerPlugin {
 			}
 
 			// If LianaMailer field was not posted, bail out.
-			if ( ! array_key_exists( $lianamailer_field_id, $entry ) || empty( $entry[ $lianamailer_field_id ] ) ) {
+			if ( ! array_key_exists( $lianamailer_field_id, $entry ) || ! isset( $entry[ $lianamailer_field_id ] ) ) {
 				throw new \Exception( 'LianaMailer field was not posted' );
 			}
 
@@ -163,6 +163,7 @@ class LianaMailerPlugin {
 
 			self::get_lianamailer_site_data( $selected_site );
 			// No LianaMailer site data found. Maybe issue with credentials or REST API.
+
 			if ( empty( self::$site_data ) ) {
 				throw new \Exception( 'LianaMailer site data could not be fetched. Check REST API credentials.' );
 			}
