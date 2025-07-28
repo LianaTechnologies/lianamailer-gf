@@ -57,10 +57,10 @@ class LianaMailerConnection {
 
 		$lianamailer_settings = get_option( 'lianamailer_gf_options' );
 
-		$user_id    = null;
-		$secret_key = null;
-		$realm      = null;
-		$url        = null;
+		$user_id    = '';
+		$secret_key = '';
+		$realm      = '';
+		$url        = '';
 
 		if ( ! empty( $lianamailer_settings['lianamailer_userid'] ) ) {
 			$user_id = $lianamailer_settings['lianamailer_userid'];
