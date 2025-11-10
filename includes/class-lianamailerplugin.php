@@ -124,20 +124,19 @@ class LianaMailerPlugin {
 		try {
 			$lianamailer_settings = $form['lianamailer'];
 			$is_plugin_enabled    = $lianamailer_settings['lianamailer_enabled'] ?? false;
-			$list_id              = intval( $lianamailer_settings['lianamailer_mailing_list'] ?? null);
-			$consent_id           = intval( $lianamailer_settings['lianamailer_consent'] ?? null);
+			$list_id              = intval( $lianamailer_settings['lianamailer_mailing_list'] ?? null );
+			$consent_id           = intval( $lianamailer_settings['lianamailer_consent'] ?? null );
 			$selected_site        = $lianamailer_settings['lianamailer_site'] ?? null;
 
 			if ( ! intval( $is_plugin_enabled ) ) {
 				throw new \Exception( 'Plugin is not enabled' );
 			}
 
-			$fields               = $form['fields'];
 			$lianamailer_field_id = null;
 			// Fetch LianaMailer properties for settings.
 			$lianamailer_field = $this->get_lianamailer_field_from_form( $form );
 
-			if ( false !== $lianamailer_field instanceof GF_LianaMailer\GF_Field_LianaMailer ) {
+			if ( ! $lianamailer_field ) {
 				throw new \Exception( 'LianaMailer field could not found on form' );
 			}
 
@@ -288,7 +287,9 @@ class LianaMailerPlugin {
 				}
 			}
 		} catch ( \Exception $e ) {
-			$failure_reason = $e->getMessage();
+			// Log exception.
+			\GFCommon::log_debug( 'LianaMailer Newsletter subscription failed: ' . $e->getMessage() );
+			return;
 		}
 	}
 
@@ -313,7 +314,7 @@ class LianaMailerPlugin {
 				continue;
 			}
 			// otherwise update it into LianaMailer.
-			$props[ $property_name ] = sanitize_text_field( $this->post_data[ $field_id ] );
+			$props[ $property_name ] = \sanitize_text_field( $this->post_data[ $field_id ] );
 		}
 		return $props;
 	}
@@ -328,7 +329,7 @@ class LianaMailerPlugin {
 	 */
 	public function get_integration_options( $options, $form_id ) {
 
-		if ( ! absint( $form_id ) ) {
+		if ( ! \absint( $form_id ) ) {
 			return array();
 		}
 		$form              = self::get_form( $form_id );
@@ -378,7 +379,10 @@ class LianaMailerPlugin {
 		}
 
 		// Check if email or SMS fields are mapped.
-		if ( isset( $lianamailer_field['lianamailer_properties']['email'] ) && $lianamailer_field['lianamailer_properties']['email'] || isset( $lianamailer_field['lianamailer_properties']['sms'] ) && $lianamailer_field['lianamailer_properties']['sms'] ) {
+		if (
+			( isset( $lianamailer_field['lianamailer_properties']['email'] ) && $lianamailer_field['lianamailer_properties']['email'] )
+			|| ( isset( $lianamailer_field['lianamailer_properties']['sms'] ) && $lianamailer_field['lianamailer_properties']['sms'] )
+		) {
 			$options['is_email_or_sms_mapped'] = true;
 		}
 
@@ -393,7 +397,6 @@ class LianaMailerPlugin {
 	 * @return object $lianamailer_field LianaMailer field object.
 	 */
 	private function get_lianamailer_field_from_form( $form ) {
-
 		if ( ! isset( $form['fields'] ) ) {
 			return array();
 		}
@@ -402,7 +405,7 @@ class LianaMailerPlugin {
 		$lianamailer_field = array();
 		// Fetch all non LianaMailer properties for settings.
 		foreach ( $fields as $key => $field_object ) {
-			if ( false === $field_object instanceof GF_Field_LianaMailer ) {
+			if ( false === $field_object instanceof \GF_LianaMailer\GF_Field_LianaMailer ) {
 				continue;
 			}
 			$lianamailer_field = $field_object;
@@ -422,22 +425,22 @@ class LianaMailerPlugin {
 
 		require_once \GFCommon::get_base_path() . '/form_detail.php';
 
-		if ( ! isset( $_POST['site'] ) || ! sanitize_text_field( wp_unslash( $_POST['site'] ) ) ) {
-			wp_die();
+		if ( ! isset( $_POST['site'] ) || ! \sanitize_text_field( \wp_unslash( $_POST['site'] ) ) ) {
+			\wp_die();
 		}
 
-		$site   = sanitize_text_field( wp_unslash( $_POST['site'] ) );
+		$site   = \sanitize_text_field( \wp_unslash( $_POST['site'] ) );
 		$action = __FUNCTION__ . '-' . $site;
-		$nonce  = sanitize_key( wp_create_nonce( $action ) );
-		if ( ! wp_verify_nonce( $nonce, $action ) ) {
-			wp_die();
+		$nonce  = \sanitize_key( \wp_create_nonce( $action ) );
+		if ( ! \wp_verify_nonce( $nonce, $action ) ) {
+			\wp_die();
 		}
 
 		$account_sites = self::$lianamailer_connection->get_account_sites();
-		$selected_site = ( isset( $_POST['site'] ) ? sanitize_text_field( wp_unslash( $_POST['site'] ) ) : null );
+		$selected_site = ( isset( $_POST['site'] ) ? \sanitize_text_field( \wp_unslash( $_POST['site'] ) ) : null );
 
 		if ( ! $selected_site ) {
-			wp_die();
+			\wp_die();
 		}
 
 		$data = array(
@@ -452,8 +455,8 @@ class LianaMailerPlugin {
 			}
 		}
 
-		echo wp_json_encode( $data );
-		wp_die();
+		echo \wp_json_encode( $data );
+		\wp_die();
 	}
 
 	/**
@@ -489,7 +492,6 @@ class LianaMailerPlugin {
 		self::get_settings_renderer()->render();
 
 		\GFFormSettings::page_footer();
-
 	}
 
 	/**
@@ -498,13 +500,13 @@ class LianaMailerPlugin {
 	public function initialize_settings_renderer() {
 
 		if ( ! class_exists( 'GFFormSettings' ) ) {
-			require_once GFCommon::get_base_path() . '/form_settings.php';
+			require_once \GFCommon::get_base_path() . '/form_settings.php';
 		}
 
 		require_once \GFCommon::get_base_path() . '/form_detail.php';
 
 		// Get form, confirmation IDs.
-		$form_id = absint( rgget( 'id' ) );
+		$form_id = \absint( rgget( 'id' ) );
 		$form    = self::get_form( $form_id );
 
 		// Initialize new settings renderer.
@@ -513,30 +515,28 @@ class LianaMailerPlugin {
 				'fields'         => $this->get_lianamailer_settings_fields( $form ),
 				'header'         => array(
 					'icon'  => 'fa fa-cogs',
-					'title' => esc_html__( 'LianaMailer settings', 'lianamailer' ),
+					'title' => \esc_html__( 'LianaMailer settings', 'lianamailer' ),
 				),
 				'initial_values' => rgar( $form, 'lianamailer' ),
 				'save_callback'  => array( $this, 'process_form_settings' ),
 				// JS which updates selected values.
-				'after_fields'   => function() use ( $form_id ) {
+				'after_fields'   => function () use ( $form_id ) {
 					$form = self::get_form( $form_id );
 					?>
 					<script type="text/javascript">
 
-						var form = <?php echo wp_json_encode( $form ); ?>;
-						( function( $ ){
+						var form = <?php echo \wp_json_encode( $form ); ?>;
+						( function ( $ ){
 							jQuery( document ).trigger( 'gform_load_lianamailer_form_settings', [ form ] );
 						})( jQuery );
 
 					</script>
 					<?php
-
 				},
 			)
 		);
 
 		self::set_settings_renderer( $renderer );
-
 	}
 
 	/**
@@ -605,12 +605,12 @@ class LianaMailerPlugin {
 			$valid  = self::$lianamailer_connection->get_status();
 			$fields = array(
 				array(
-					'title'  => esc_html__( 'LianaMailer settings', 'lianamailer' ),
+					'title'  => \esc_html__( 'LianaMailer settings', 'lianamailer' ),
 					'fields' => array(
 						array(
 							'name' => 'no-settings',
 							'type' => 'html',
-							'html' => ( ! $valid ? 'REST API connection failed. <a href="' . admin_url( 'admin.php?page=lianamailergf' ) . '" target="_blank">Check settings</a>' : 'Unable to find any LianaMailer sites.' ),
+							'html' => ( ! $valid ? 'REST API connection failed. <a href="' . \admin_url( 'admin.php?page=lianamailergf' ) . '" target="_blank">Check settings</a>' : 'Unable to find any LianaMailer sites.' ),
 						),
 					),
 				),
@@ -672,11 +672,11 @@ class LianaMailerPlugin {
 		// Build LianaMailer plugin settings fields.
 		$fields = array(
 			array(
-				'title'  => esc_html__( 'LianaMailer settings', 'lianamailer' ),
+				'title'  => \esc_html__( 'LianaMailer settings', 'lianamailer' ),
 				'fields' => array(
 					array(
 						'name'    => 'lianamailer_enabled',
-						'label'   => esc_html__( 'Enable LianaMailer -integration on this form', 'lianamailer' ),
+						'label'   => \esc_html__( 'Enable LianaMailer -integration on this form', 'lianamailer' ),
 						'type'    => 'checkbox',
 						'choices' => array(
 							array(
@@ -687,33 +687,32 @@ class LianaMailerPlugin {
 					),
 					array(
 						'name'    => 'lianamailer_site',
-						'label'   => esc_html__( 'Site', 'lianamailer' ),
+						'label'   => \esc_html__( 'Site', 'lianamailer' ),
 						'type'    => 'select',
 						'choices' => $site_choices,
 					),
 					array(
 						'name'    => 'lianamailer_mailing_list',
-						'label'   => esc_html__( 'Mailing list', 'lianamailer' ),
+						'label'   => \esc_html__( 'Mailing list', 'lianamailer' ),
 						'type'    => 'select',
 						'choices' => $mailing_list_choices,
 					),
 					array(
 						'name'    => 'lianamailer_consent',
-						'label'   => esc_html__( 'Consent', 'lianamailer' ),
+						'label'   => \esc_html__( 'Consent', 'lianamailer' ),
 						'type'    => 'select',
 						'choices' => $consent_list_choices,
 					),
 					// save button.
 					array(
 						'type'  => 'save',
-						'value' => esc_html__( 'Save settings', 'lianamailer' ),
+						'value' => \esc_html__( 'Save settings', 'lianamailer' ),
 					),
 				),
 			),
 		);
 
 		return $fields;
-
 	}
 
 	/**
@@ -735,7 +734,7 @@ class LianaMailerPlugin {
 
 		// Ensure renderer is an instance of Settings.
 		if ( ! is_a( $renderer, 'Gravity_Forms\Gravity_Forms\Settings\Settings' ) ) {
-			return new WP_Error( 'Renderer must be an instance of Gravity_Forms\Gravity_Forms\Settings\Settings.' );
+			return new \WP_Error( 'Renderer must be an instance of Gravity_Forms\Gravity_Forms\Settings\Settings.' );
 		}
 
 		self::$settings_renderer = $renderer;
@@ -780,7 +779,7 @@ class LianaMailerPlugin {
 		// Fetch all non LianaMailer fields for settings.
 		foreach ( $fields as $key => $field_object ) {
 
-			if ( false !== $field_object instanceof GF_Field_LianaMailer ) {
+			if ( false !== $field_object instanceof \GF_LianaMailer\GF_Field_LianaMailer ) {
 				continue;
 			}
 			$form_fields[] = $field_object;
@@ -789,7 +788,7 @@ class LianaMailerPlugin {
 		// Property mapping.
 		$html = $this->print_property_selection( $form_fields );
 
-		$allowed_html   = wp_kses_allowed_html( 'post' );
+		$allowed_html   = \wp_kses_allowed_html( 'post' );
 		$custom_allowed = array();
 
 		$custom_allowed['input'] = array(
@@ -821,7 +820,7 @@ class LianaMailerPlugin {
 		);
 
 		$allowed_html = array_merge( $allowed_html, $custom_allowed );
-		echo wp_kses( $html, $allowed_html );
+		echo \wp_kses( $html, $allowed_html );
 	}
 
 	/**
@@ -841,15 +840,15 @@ class LianaMailerPlugin {
 
 		$html          = '<li class="lianamailer_properties_setting field_setting">';
 			$html     .= '<label for="field_lianamailer_property" class="section_label">';
-				$html .= esc_html__( 'LianaMailer Property Map', 'lianamailer-for-gf' );
-				$html .= gform_tooltip( 'property_map_setting', '', true );
+				$html .= \esc_html__( 'LianaMailer Property Map', 'lianamailer-for-gf' );
+				$html .= \gform_tooltip( 'property_map_setting', '', true );
 			$html     .= '</label>';
 
 		if ( empty( $lianamailer_properties ) ) {
 			if ( ! self::$is_connection_valid ) {
-				$html .= 'REST API connection failed. Check <a href="' . admin_url( 'admin.php?page=lianamailergf' ) . '" target="_blank">settings</a>';
+				$html .= 'REST API connection failed. Check <a href="' . \admin_url( 'admin.php?page=lianamailergf' ) . '" target="_blank">settings</a>';
 			} else {
-				$html .= 'No properties found. Check LianaMailer <a href="' . admin_url( 'admin.php?page=gf_edit_forms&view=settings&subview=lianaMailerSettings&id=' . rgget( 'id' ) ) . '" target="_blank">settings</a>';
+				$html .= 'No properties found. Check LianaMailer <a href="' . \admin_url( 'admin.php?page=gf_edit_forms&view=settings&subview=lianaMailerSettings&id=' . rgget( 'id' ) ) . '" target="_blank">settings</a>';
 			}
 		} else {
 			foreach ( $lianamailer_properties as $property ) {
@@ -859,7 +858,7 @@ class LianaMailerPlugin {
 						$html .= '<b>' . $property['name'] . ( isset( $property['handle'] ) && is_int( $property['handle'] ) ? ' (#' . $property['handle'] . ')' : '' ) . '</b>';
 					$html     .= '</label>';
 					$html     .= '<select id="field_lianamailer_property_' . $property['handle'] . '" data-handle="' . $property['handle'] . '" onchange="SetLianaMailerProperty(jQuery(this))">';
-						$html .= '<option value="">' . esc_html__( 'Select form field', 'lianamailer-for-gf' ) . '</option>';
+						$html .= '<option value="">' . \esc_html__( 'Select form field', 'lianamailer-for-gf' ) . '</option>';
 				foreach ( $form_fields as $form_field ) {
 					$html .= sprintf( '<option value="%d">%s</option>', $form_field->id, $form_field->label );
 
@@ -875,7 +874,7 @@ class LianaMailerPlugin {
 							$html .= sprintf(
 								'<option value="%s">%s</option>',
 								$input['id'],
-								strip_tags( \GFCommon::get_label( $form_field, $input['id'] ) )
+								\wp_strip_all_tags( \GFCommon::get_label( $form_field, $input['id'] ) )
 							);
 						}
 					}
@@ -891,14 +890,14 @@ class LianaMailerPlugin {
 			// Opt-in checkbox.
 			$html     .= '<input type="checkbox" id="field_lianamailer_opt_in" onclick="SetLianaMailerOptIn(jQuery(this))" />';
 			$html     .= '<label for="field_lianamailer_opt_in" class="inline">';
-				$html .= esc_html__( 'Opt-in', 'lianamailer-for-gf' );
-				$html .= gform_tooltip( 'opt_in_setting', '', true );
+				$html .= \esc_html__( 'Opt-in', 'lianamailer-for-gf' );
+				$html .= \gform_tooltip( 'opt_in_setting', '', true );
 			$html     .= '</label>';
 
 			// Opt-in label.
 			$html         .= '<div class="lm-opt-in-label-wrapper hidden">';
 				$html     .= '<label for="field_lianamailer_opt_in_label" class="section_label">';
-					$html .= esc_html__( 'Opt-in Label', 'lianamailer-for-gf' );
+					$html .= \esc_html__( 'Opt-in Label', 'lianamailer-for-gf' );
 				$html     .= '</label>';
 				$html     .= '<input type="text" id="field_lianamailer_opt_in_label" onkeyup="SetLianaMailerOptInLabel(jQuery(this)); "/>';
 			$html         .= '</div>';
@@ -964,7 +963,7 @@ class LianaMailerPlugin {
 				$site_data['lists']      = $site['lists'];
 				$site_data['consents']   = $site_consents;
 				self::$site_data         = $site_data;
-				set_transient( 'lianamailer_' . $selected_site, $site_data, DAY_IN_SECONDS );
+				\set_transient( 'lianamailer_' . $selected_site, $site_data, DAY_IN_SECONDS );
 			}
 		}
 	}
@@ -1005,7 +1004,7 @@ class LianaMailerPlugin {
 
 		if ( ! empty( $properties ) ) {
 			$properties = array_map(
-				function( $field ) {
+				function ( $field ) {
 					return array(
 						'name'     => $field['name'],
 						'handle'   => $field['handle'],
@@ -1020,23 +1019,38 @@ class LianaMailerPlugin {
 		}
 
 		return $fields;
-
 	}
 
 	/**
 	 * Enqueue plugin CSS and JS
 	 */
 	public function add_lianamailer_plugin_scripts() {
-		wp_enqueue_style( 'lianamailer-gravity-forms-admin-css', LMCGF_URL . 'css/admin.css', array(), LMCGF_VERSION );
+		\wp_enqueue_style( 'lianamailer-gravity-forms-admin-css', LMCGF_URL . 'css/admin.css', array(), LMCGF_VERSION );
 
-		$form_id = absint( rgget( 'id' ) );
+		$form_id = \absint( rgget( 'id' ) );
 		$js_vars = array(
-			'url'     => admin_url( 'admin-ajax.php' ),
+			'url'     => \admin_url( 'admin-ajax.php' ),
 			'form_id' => $form_id,
 		);
-		wp_register_script( 'lianamailer-gravity-forms-plugin', LMCGF_URL . 'js/lianamailer-plugin.js', array( 'jquery' ), LMCGF_VERSION, false );
-		wp_localize_script( 'lianamailer-gravity-forms-plugin', 'lianaMailerConnection', $js_vars );
-		wp_enqueue_script( 'lianamailer-gravity-forms-plugin' );
+		\wp_register_script( 'lianamailer-gravity-forms-plugin', LMCGF_URL . 'js/lianamailer-plugin.js', array( 'jquery' ), LMCGF_VERSION, false );
+		\wp_localize_script( 'lianamailer-gravity-forms-plugin', 'lianaMailerConnection', $js_vars );
+		\wp_enqueue_script( 'lianamailer-gravity-forms-plugin' );
+
+		// Allow Gravity Forms to load our scripts and styles in no-conflict mode.
+		\add_filter(
+			'gform_noconflict_scripts',
+			function ( $scripts ) {
+				$scripts[] = 'lianamailer-gravity-forms-plugin';
+				return $scripts;
+			}
+		);
+		\add_filter(
+			'gform_noconflict_styles',
+			function ( $styles ) {
+				$styles[] = 'lianamailer-gravity-forms-admin-css';
+				return $styles;
+			}
+		);
 	}
 
 	/**
@@ -1046,8 +1060,8 @@ class LianaMailerPlugin {
 	 */
 	public function set_lianamailer_field_tooltips( $tooltips ) {
 		$lianamailer_tooltips = array(
-			'property_map_setting' => sprintf( '<h6>%s</h6>%s', esc_html__( 'Property map for LianaMailer', 'lianamailer-for-gf' ), esc_html__( 'Map form fields for LianaMailer fields', 'lianamailer-for-gf' ) ),
-			'opt_in_setting'       => sprintf( '<h6>%s</h6>%s', esc_html__( 'Opt-in for LianaMailer', 'lianamailer-for-gf' ), esc_html__( 'Check this field if no LianaMailer consent is available but you want to display a custom checkbox for consent', 'lianamailer-for-gf' ) ),
+			'property_map_setting' => sprintf( '<h6>%s</h6>%s', \esc_html__( 'Property map for LianaMailer', 'lianamailer-for-gf' ), \esc_html__( 'Map form fields for LianaMailer fields', 'lianamailer-for-gf' ) ),
+			'opt_in_setting'       => sprintf( '<h6>%s</h6>%s', \esc_html__( 'Opt-in for LianaMailer', 'lianamailer-for-gf' ), \esc_html__( 'Check this field if no LianaMailer consent is available but you want to display a custom checkbox for consent', 'lianamailer-for-gf' ) ),
 		);
 
 		return array_merge( $tooltips, $lianamailer_tooltips );
@@ -1065,17 +1079,22 @@ class LianaMailerPlugin {
 		}
 		// Proxies can send the real IP address in different headers like HTTP_CLIENT_IP, HTTP_X_FORWARDED_FOR, or FORWARDED.
 		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			return sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
+			return \sanitize_text_field( \wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
 		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) || ! empty( $_SERVER['FORWARDED'] ) ) {
-			$ip_string = ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['FORWARDED'];
+			$x_forwarded_for = \sanitize_text_field( \wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '' ) );
+			$forwarded       = \sanitize_text_field( \wp_unslash( $_SERVER['FORWARDED'] ?? '' ) );
+			$ip_string       = $x_forwarded_for ? $x_forwarded_for : $forwarded;
 			if ( strpos( $ip_string, ',' ) !== false ) {
 				// If there are multiple IPs, take the first one.
 				$ips = explode( ',', $ip_string );
-				return sanitize_text_field( wp_unslash( trim( $ips[0] ) ) );
+				return \sanitize_text_field( \wp_unslash( trim( $ips[0] ) ) );
 			}
 			// If there is only one IP, return it.
-			return sanitize_text_field( wp_unslash( $ip_string ) );
+			return \sanitize_text_field( \wp_unslash( $ip_string ) );
 		}
-		return sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
+			return \sanitize_text_field( \wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+		}
+		return '';
 	}
 }
