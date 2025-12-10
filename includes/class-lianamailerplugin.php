@@ -2,8 +2,6 @@
 /**
  * LianaMailer - Gravity Forms plugin
  *
- * PHP Version 7.4
- *
  * @package  LianaMailer
  * @license  https://www.gnu.org/licenses/gpl-3.0-standalone.html GPL-3.0-or-later
  * @link     https://www.lianatech.com
@@ -24,7 +22,6 @@ use Gravity_Forms\Gravity_Forms\Settings\Settings;
 /**
  * LianaMailer - Gravity Forms plugin class
  *
- * PHP Version 7.4
  *
  * @package  LianaMailer
  * @license  https://www.gnu.org/licenses/gpl-3.0-standalone.html GPL-3.0-or-later
@@ -137,12 +134,13 @@ class LianaMailerPlugin {
 			$lianamailer_field = $this->get_lianamailer_field_from_form( $form );
 
 			if ( ! $lianamailer_field ) {
-				throw new \Exception( 'LianaMailer field could not found on form' );
+				throw new \Exception( 'LianaMailer field could not be found on form' );
 			}
 
 			$lianamailer_field_id = $lianamailer_field['id'];
 			$is_opt_in_enabled    = $lianamailer_field['lianamailer_opt_in'];
 			$opt_in_label         = $lianamailer_field['label'];
+			$opt_in_checked       = (bool) ( $entry[ $lianamailer_field_id ] ?? false );
 
 			// If opt-in was enabled but without label and consent.
 			if ( $is_opt_in_enabled && ! $opt_in_label && ! $consent_id ) {
@@ -152,6 +150,11 @@ class LianaMailerPlugin {
 			// If LianaMailer field was not posted, bail out.
 			if ( ! array_key_exists( $lianamailer_field_id, $entry ) || ! isset( $entry[ $lianamailer_field_id ] ) ) {
 				throw new \Exception( 'LianaMailer field was not posted' );
+			}
+
+			// LianaMailer field was not provided, no need to subscribe.
+			if ( ! $opt_in_checked ) {
+				return;
 			}
 
 			$property_map = array();

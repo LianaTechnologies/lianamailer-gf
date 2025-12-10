@@ -2,8 +2,6 @@
 /**
  * LianaMailer Contact Form 7 admin panel
  *
- * PHP Version 7.4
- *
  * @package  LianaMailer
  * @author   Liana Technologies <websites@lianatech.com>
  * @license  https://www.gnu.org/licenses/gpl-3.0-standalone.html GPL-3.0-or-later

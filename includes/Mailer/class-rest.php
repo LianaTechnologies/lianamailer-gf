@@ -2,8 +2,6 @@
 /**
  * LianaMailer - Gravity Forms plugin
  *
- * PHP Version 7.4
- *
  * @package  LianaMailer
  * @license  https://www.gnu.org/licenses/gpl-3.0-standalone.html GPL-3.0-or-later
  * @link     https://www.lianatech.com
@@ -13,8 +11,6 @@ namespace GF_LianaMailer;
 
 /**
  * REST class for Gravity Forms plugin
- *
- * PHP Version 7.4
  *
  * @package  LianaMailer
  * @license  https://www.gnu.org/licenses/gpl-3.0-standalone.html GPL-3.0-or-later

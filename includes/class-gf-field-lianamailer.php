@@ -2,8 +2,6 @@
 /**
  * LianaMailer - Gravity Forms plugin
  *
- * PHP Version 7.4
- *
  * @package  LianaMailer
  * @license  https://www.gnu.org/licenses/gpl-3.0-standalone.html GPL-3.0-or-later
  * @link     https://www.lianatech.com
@@ -17,8 +15,6 @@ if ( ! class_exists( '\GF_Field' ) ) {
 
 /**
  * LianaMailer custom field class for Gravity Forms plugin
- *
- * PHP Version 7.4
  *
  * @package  LianaMailer
  * @license  https://www.gnu.org/licenses/gpl-3.0-standalone.html GPL-3.0-or-later
@@ -101,10 +97,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 		 * If plugin is not enabled, consent not selected or mailing list not selected, hide the input from public form.
 		 */
 		if ( $this->hide_input_on_public_form( $options ) ) {
-			// If the field is not required, submit empty value when hidden
-			$hidden_value = ( $this->isRequired ) ? '1' : '';
-
-			return '<input type="hidden" class="gform_hidden lianamailer_input" name="input_' . $id . '" id="' . $field_id . '" value="' . $hidden_value . '" />';
+			return '<input type="hidden" class="gform_hidden lianamailer_input" name="input_' . $id . '" id="' . $field_id . '" value="1" />';
 		}
 		return sprintf( "<div class='ginput_container ginput_container_checkbox lianamailer_input'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );
 	}
