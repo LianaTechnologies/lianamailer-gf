@@ -96,7 +96,7 @@ class GF_Field_LianaMailer extends \GF_Field {
 		/**
 		 * If plugin is not enabled, consent not selected or mailing list not selected, hide the input from public form.
 		 */
-		if ( $this->hide_input_on_public_form( $options ) ) {
+		if ( $this->visibility === 'hidden' || $this->hide_input_on_public_form( $options ) ) {
 			return '<input type="hidden" class="gform_hidden lianamailer_input" name="input_' . $id . '" id="' . $field_id . '" value="1" />';
 		}
 		return sprintf( "<div class='ginput_container ginput_container_checkbox lianamailer_input'>%s</div>", $this->get_checkbox_choices( $value, $disabled_text, $form_id, $options ) );

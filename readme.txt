@@ -4,7 +4,7 @@ Tags: newsletter, automation
 Requires at least: 6.5
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.83
+Stable tag: 1.0.84
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0-standalone.html
 
@@ -53,7 +53,7 @@ REST API documentation of LianaMailer product is available at [our support site]
 
 == Changelog ==
 
-= 1.0.83 2025-12-10 =
+= 1.0.84 2025-12-10 =
 * **Fixed:** LianaMailer field need to be either hidden or checked for subscription to be made.
 
 = 1.0.82 2025-11-10 =
