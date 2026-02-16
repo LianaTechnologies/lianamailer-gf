@@ -4,11 +4,19 @@ Tags: newsletter, automation
 Requires at least: 6.5
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.84
+Stable tag: 1.0.85
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0-standalone.html
 
 == Description ==
+
+== Deprecation notice ==
+
+This plugin has been deprecated and merged into [Liana with GrowthStack](https://wordpress.org/plugins/liana-with-growthstack/).
+
+This plugin will no longer receive updates.
+
+== LianaMailer for Gravity Forms ==
 
 LianaMailer for Gravity Forms is an integration plugin which integrates LianaMailer into [Gravity Forms](https://www.gravityforms.com/). It enables you to have newsletter opt-ins automatically exported from Gravity Forms form to LianaMailer email marketing solution.
 
